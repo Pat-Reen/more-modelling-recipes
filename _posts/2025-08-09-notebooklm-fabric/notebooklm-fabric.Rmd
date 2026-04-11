@@ -1,7 +1,7 @@
 ---
 title: "NotebookLM as a learning tool — Microsoft Fabric"
 description: |
-  Using Google NotebookLM's Audio Overview to convert Microsoft Fabric documentation into a podcast — a practical approach to filling knowledge gaps when you are already partway into learning a platform.
+  Using Google NotebookLM's Audio Overview to convert Microsoft Fabric documentation into a podcast for gap-filling while running — and a follow-up applying the same approach to a corporate annual report, to unexpectedly strong reception from the leadership team.
 author:
   - name: Pat Reen
     url: https://www.linkedin.com/in/patrick-reen/
@@ -70,6 +70,18 @@ A few things stood out:
 The audio overview is not a substitute for hands-on work or for the kind of deep interrogation that the chat interface enables. It synthesises and explains; it does not answer specific questions, reason over your own data, or provide citable references in the way that the notebook chat does. It also inherits the limitations of the source material — if the documentation is incomplete or ambiguous on a topic, the generated audio will be too.
 
 For a broader comparison of the chat and audio overview modes, and a different application of NotebookLM to a more data-intensive problem, see the [earlier post on using it to explore insulin pump algorithm settings](../2024-10-06-notebooklm-t1d/notebooklm-t1d.html).
+
+## Follow-up: ClearView FY25 annual report
+
+Having used Audio Overview for technical documentation, a natural follow-up was to try it on a different kind of source material — corporate reporting. ClearView had just released its FY25 annual report and investor relations pack, and I loaded both into a new notebook to generate an audio overview.
+
+The result was shared with the leadership team and got a stronger reaction than expected. The overview distilled the key financial themes, strategic priorities, and investor messaging from the full report pack into a concise, well-structured discussion that several members of the leadership team remarked on for its quality and coherence. The MD noted, not entirely in jest, that she might be out of a job.
+
+[![](img/notebooklm_clearview.png){width=100%}](https://notebooklm.google.com)
+
+The annual report use case highlights a different strength of the tool compared to the technical documentation case. Corporate reporting is dense and structured but often written to be comprehensive rather than clear — it covers everything without necessarily drawing out the most important threads. The audio overview format inverts this: it surfaces the narrative, prioritises what is significant, and presents it in a way that is considerably easier to absorb than reading 80 pages of statutory reporting.
+
+This also points to a practical organisational application: generated audio overviews of internal documents — strategy papers, board packs, market updates — as a distribution mechanism for senior stakeholders whose reading time is limited. The quality ceiling is high enough that the output is credible rather than a novelty.
 
 ## Further reading
 
