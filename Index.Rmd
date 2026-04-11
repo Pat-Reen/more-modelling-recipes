@@ -3,6 +3,7 @@ title: "Modelling and visualisation"
 site: distill::distill_website
 listing: 
   posts:
+    - 2026-04-05-bot-de-plume
     - 2026-03-08-sketchy-bot
     - 2026-02-15-family-hub
     - 2025-10-25-google-ai-studio-projects

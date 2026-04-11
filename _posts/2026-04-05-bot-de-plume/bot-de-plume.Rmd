@@ -1,0 +1,88 @@
+---
+title: "From sticky notes to a full novel: building (and using) a personal AI writing studio"
+description: |
+  Bot de Plume is a Next.js writing app with a multi-agent pipeline — character context assembly, scene drafting, continuity checking, and editorial passes. I used it to write and publish a novel. It sold one copy. Here's what I learned.
+author:
+  - name: Pat Reen
+    url: https://www.linkedin.com/in/patrick-reen/
+categories:
+  - generativeai
+  - claudecode
+  - claude
+  - ai
+  - agents
+  - writing
+theme: main.css
+preview: img/prev_bot_de_plume.png
+date: 2026-04-05
+draft: false
+output:
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    self_contained: true
+---
+
+# Background
+
+*...What if the tool that helps you organise a novel could also help you write it?...*
+
+I've been meaning to write this post for a while, partly because the project had an unexpected ending — a published novel, one sale, and a lot of hard-won lessons.
+
+## Further reading
+
+* [Claude Sonnet](https://www.anthropic.com/claude) — the primary model used for scene generation and the agent pipeline.
+* [Next.js](https://nextjs.org) — the framework the app is built on, running entirely against the local filesystem.
+* [Sketchy Bot](../2026-03-08-sketchy-bot/sketchy-bot.html) — the earlier project that developed the agent orchestration pattern Bot de Plume builds on.
+
+# The original problem
+
+Like a lot of writers, I tend to accumulate ideas faster than I can organise them. Characters multiply. Scenes drift. The plot you had in your head in January looks unrecognisable by March. I wanted a tool that would let me map a long project — chapters, scenes, character notes, location descriptions — and keep the threads from tangling.
+
+The existing options (Scrivener, Notion, plain markdown folders) all do organisation, but none of them knew what I was trying to write. I wanted something that could hold the context of my project and help me think inside it.
+
+So I built one.
+
+# What the app became
+
+Bot de Plume is a Next.js app running entirely on the local filesystem — no database, just JSON and markdown files in a `content/` folder. That constraint turned out to be a feature. The project is portable, transparent, and version-controllable. You can open the files in any editor.
+
+[![](img/bot_de_plume_app.png){width=100%}](https://github.com/Pat-Reen/productivity-bot)
+
+The core structure mirrors how I actually think about fiction: projects → chapters → scenes, with a parallel system for characters and locations. Each scene carries its own notes, a status (not started / draft / complete), a word count target, and a content type (prose, dialogue, action). Characters and locations can be pinned to an interactive map. Everything auto-saves.
+
+The AI integration — Claude Sonnet and Grok, switchable per scene — isn't a simple "write this for me" button. Before any generation request goes out, the system assembles a full context packet: character profiles for everyone in the scene, the location description, notes on scene intent, summaries of prior scenes, any frozen passages that must appear verbatim, and the existing draft. The model receives the whole narrative situation, not just a prompt.
+
+# The agent pipeline
+
+What started as a simple generation button evolved into something more structured — building on the agent orchestration pattern developed in [Sketchy Bot](../2026-03-08-sketchy-bot/sketchy-bot.html). The app can chain agents with different roles through a single project: one focused on drafting, another on editing, another checking for continuity in character and location development, another doing copy-editing passes. Each agent operates on the same project context but with a different lens.
+
+The idea was that you could move a scene through a pipeline — rough draft, character consistency check, editorial pass, copy-edit — without leaving the app.
+
+# Building it, then using it
+
+I spent several months developing the app in spare time. Then, one weekend, I decided to actually use it the way it was intended — to write a full novel.
+
+The book is called *The Originality Engine*. The pipeline handled the structural work: the setup agent helped scaffold the chapters and scene summaries, and from there the agents drafted, refined, and stitched the prose together.
+
+It was a strange experience. The app worked. The novel got written. It came out the other side as a coherent, finished thing.
+
+I published it.
+
+[![](img/novel_cover.png){width=60%}](https://github.com/Pat-Reen/productivity-bot)
+
+## One sale
+
+The grand total: one sale. I'm not entirely sure it was a stranger.
+
+In retrospect, this makes complete sense — and not just because AI-generated fiction is a contested space (though it is, and fairly so). The pipeline produced a book, but "produced" is the honest word. The parts of novel-writing that actually create an audience — the distinctly human voice, the accumulated craft decisions, the willingness to revise a scene fifteen times because something feels off — those weren't in the loop. The app was doing the heavy lifting in exactly the places where the heavy lifting is supposed to show.
+
+# What I'd do differently
+
+**Keep the tool, change the role.** Bot de Plume is genuinely useful for what I originally wanted: organising a complex long-form project, holding context across characters and scenes, keeping continuity honest. The agent pipeline is valuable for drafts — rough material to react to, not finished prose.
+
+**The human needs to be deeper in the loop.** Not just reviewing output, but making the calls that define a voice: which sentence sounds right, which scene earns its length, which character turn actually surprises. AI can give you a scaffolded building. It can't tell you what the building should feel like to live in.
+
+If I wrote *The Originality Engine* again, I'd use the same tool and do more of the writing myself. Slower, messier, and considerably more publishable.
+
+The app is still in use. The novel is still out there, with its single sale, as evidence that shipping something is better than not shipping it — even when the market agrees with the critics.
