@@ -20,7 +20,6 @@ output:
     toc: true
     toc_float: true
     self_contained: true
-    code_folding: true
 ---
 
 # Background
