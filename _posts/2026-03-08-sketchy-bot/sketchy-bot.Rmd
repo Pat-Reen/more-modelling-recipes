@@ -1,7 +1,7 @@
 ---
 title: "Sketch Bot is coming: building an AI art studio with Claude Code"
 description: |
-  A multi-agent AI pipeline that researches the NFT market, directs and generates art, critiques its own output, and iterates until it meets the bar. An exploration of agent orchestration within an app — and a closed loop that almost closes.
+  A multi-agent AI pipeline that researches the digital art market, directs and generates art, critiques its own output, and iterates until it meets the bar. An exploration of agent orchestration within an app — and a closed loop that almost closes.
 author:
   - name: Pat Reen
     url: https://www.linkedin.com/in/patrick-reen/
@@ -25,7 +25,7 @@ output:
 
 # Background
 
-*...What if you removed the human bottleneck from creative production entirely?...*
+*...What if your agents made things and reviewed them, all by themselves?...*
 
 A few years ago I came across an article that stuck with me. Someone had built a company — if you can call it that — run entirely by AI. It generated digital art, listed it for sale, and used the proceeds to buy more compute, iterating on what sold and discarding what didn't. A closed loop. A machine that makes art to fund its own existence.
 
@@ -51,9 +51,9 @@ This distinction matters. There's a growing pattern of using multiple AI coding 
 
 # The pipeline
 
-The result is Sketchy — or Sketch Bot informally. Here's what it does:
+The result is Sketchy — or Sketch Bot. Here's what it does:
 
-**Research** — Claude synthesises what's trending in the NFT art market: styles, price ranges, platforms, keywords.
+**Research** — Claude synthesises what's trending in the digital art market: styles, price ranges, platforms, keywords.
 
 **Art Direction** — Claude (with extended thinking) reads that research and crafts a detailed image generation prompt.
 
