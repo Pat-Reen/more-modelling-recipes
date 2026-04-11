@@ -1,5 +1,5 @@
 ---
-title: "NotebookLM and the insulin pump algorithm"
+title: "NotebookLM and the insulin pumps"
 description: |
   Using Google NotebookLM to explore the variables driving a closed-loop insulin pump algorithm — grounding an AI in pump manuals, published research, and a child's own glucose and insulin delivery data to optimise settings for a newly diagnosed young diabetic.
 author:
@@ -23,7 +23,7 @@ output:
 
 # Background
 
-*...What happens when the standard algorithm settings aren't designed for your patient?...*
+*...What happens when the standard algorithm settings aren't designed for you?...*
 
 My daughter was recently diagnosed with Type 1 diabetes. She was placed on a Medtronic MiniMed 780G insulin pump — a closed-loop system that uses a continuous glucose monitor and an adaptive algorithm to automate basal insulin delivery and correction boluses. The system is well-regarded, but like all algorithms it is calibrated for a broad population.
 
@@ -56,8 +56,6 @@ The knowledge base for the notebook contained three categories of source materia
 **Published research** — papers published by Medtronic and independent researchers on the 780G algorithm's behaviour, particularly studies examining performance in paediatric populations and patients with low total daily doses.
 
 **Personal data** — exported glucose readings and insulin delivery logs from the pump, giving the notebook actual data to reason over rather than hypotheticals.
-
-[![](img/notebooklm_sources.png){width=100%}](https://notebooklm.google.com)
 
 ## The exploration
 
