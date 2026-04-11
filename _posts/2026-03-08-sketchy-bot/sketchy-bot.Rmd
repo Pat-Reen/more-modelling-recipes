@@ -1,0 +1,134 @@
+---
+title: "Sketch Bot is coming: building an AI art studio with Claude Code"
+description: |
+  A multi-agent AI pipeline that researches the NFT market, directs and generates art, critiques its own output, and iterates until it meets the bar. An exploration of agent orchestration within an app — and a closed loop that almost closes.
+author:
+  - name: Pat Reen
+    url: https://www.linkedin.com/in/patrick-reen/
+categories:
+  - generativeai
+  - claudecode
+  - claude
+  - ai
+  - agents
+  - nft
+theme: main.css
+preview: img/prev_sketchy_bot.png
+date: 2026-03-08
+draft: false
+output:
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    self_contained: true
+---
+
+# Background
+
+*...What if you removed the human bottleneck from creative production entirely?...*
+
+A few years ago I came across an article that stuck with me. Someone had built a company — if you can call it that — run entirely by AI. It generated digital art, listed it for sale, and used the proceeds to buy more compute, iterating on what sold and discarding what didn't. A closed loop. A machine that makes art to fund its own existence.
+
+I couldn't stop thinking about it.
+
+Not because it was particularly successful. I'm not sure it was. But the concept was fascinating: what if you removed the human bottleneck from creative production entirely? What if the whole pipeline — research what sells, create the work, review it, price it, list it — was automated end to end?
+
+That question sat in the back of my head until I started working with Claude Code, and suddenly I had the tools to actually build it.
+
+## Further reading
+
+* [Claude extended thinking](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) — Anthropic's documentation on giving Claude a reasoning budget before it commits to an output.
+* [Grok image generation](https://x.ai/grok) — the image model used for art generation in the pipeline.
+* [OpenSea Seaport protocol](https://github.com/ProjectOpenSea/seaport) — the on-chain listing protocol the sales agent targets.
+
+# The idea
+
+I wanted to recreate that closed-loop concept with a specific architectural twist: build it inside a single app, using a proper multi-agent architecture where each stage of the pipeline has its own context, its own tools, and its own job to do.
+
+Not one big prompt. Not a chatbot pretending to be an art studio. Actual agents, each purpose-built, handing off to the next.
+
+This distinction matters. There's a growing pattern of using multiple AI coding agents in parallel to handle a backlog — one agent per ticket, working independently. That's a powerful pattern for software development. This is something different: agents orchestrated *within* an application, where each one is a functional component of a running system. The same underlying model, but given different roles, different contexts, and different instructions — operating together as a pipeline rather than independently as a team.
+
+# The pipeline
+
+The result is Sketchy — or Sketch Bot informally. Here's what it does:
+
+**Research** — Claude synthesises what's trending in the NFT art market: styles, price ranges, platforms, keywords.
+
+**Art Direction** — Claude (with extended thinking) reads that research and crafts a detailed image generation prompt.
+
+**Generation** — Grok's image model renders the image.
+
+**Critique** — Claude Vision scores the result across four dimensions: technical quality, composition, originality, and marketability.
+
+**Refinement** — If the score doesn't hit 8/10, Claude rewrites the prompt and the loop runs again, up to three times.
+
+**Sales** — Claude writes listing copy and prices the work in ETH.
+
+The pipeline tracks the best-scoring image across all iterations, not just the last one. So if attempt 2 scores 7.8 and attempt 3 regresses to 6.1, the bot saves attempt 2 and tells you exactly what happened.
+
+[![](img/sketchy_pipeline.png){width=100%}](https://github.com/Pat-Reen/productivity-bot)
+
+# Building it with Claude Code
+
+What made this actually fun to build — rather than a months-long slog — was using Claude Code as my development environment. Not just as a code generator, but as a collaborator that understood the whole system.
+
+## Extended thinking for the Art Director
+
+The most interesting agent to build was the Art Director. Its job is to read market research and produce a Grok image prompt that's commercially viable and creatively interesting. That's a genuinely hard brief.
+
+I gave it Claude's extended thinking mode — 8,000 token budget for initial prompts, 4,000 for refinements. This lets it reason through the problem before committing to an answer: what styles is Grok actually good at? What's too clichéd? What combination of subject, setting, and mood is most likely to feel original?
+
+The system prompt bans an explicit list of AI art clichés: lone figure on cliff gazing at sunset, floating islands, glowing forests, purple-teal synthwave grids. The Critic is instructed to score originality ≤ 5 for any of them. It's a tighter brief than most human art directors give.
+
+## Claude Vision for the Critic
+
+The Critic agent takes the generated image, base64-encodes it, and passes it to Claude with a scoring rubric. One implementation detail worth noting: Grok returns JPEG even when PNG is implied, so the pipeline detects the actual format from magic bytes rather than trusting the file extension. Without this, Claude throws a media type mismatch error and the whole pipeline stalls.
+
+Originality is weighted most heavily in the system prompt. Claude is explicitly instructed to score generic AI art ≤ 5 and reserve 7+ for work with genuine creative identity. It's a tough but consistently fair critic.
+
+## Streaming the whole pipeline
+
+The orchestrator is an async generator. Every stage yields text as it runs, and the CLI streams it to stdout. You watch the pipeline think in real time:
+
+```
+🔍 Researching market trends...
+   Found 5 trends. Top styles: cinematic digital painting, surrealist 3D, glitchwave
+
+🎨 Art director crafting prompt (extended thinking)...
+   Style: surrealist
+   Prompt: A Victorian botanist examining a specimen that is slowly consuming her lab...
+
+🖼️  Generating image (attempt 1/3)...
+   Saved to: grok-1744234512.jpg
+
+👁️  Critiquing image...
+   Quality:7  Composition:6  Originality:8  Marketability:6  → Overall: 6.75/10
+   ⚠️  Score 6.75 < 8. Refining prompt...
+```
+
+## Hooks and memory
+
+One of the Claude Code features I leaned into most was hooks — shell scripts that run before and after every tool call. I wired these up to log everything to `memory/tool-log.jsonl`: every API call, every file write, every cost. The `memory/` directory accumulates a persistent record of the bot's decisions across sessions.
+
+Market research is cached to `memory/latest-research.json` so the art generation path can skip the research step if it's been run recently. Listings are appended to `memory/listings.json`. Costs are tracked in `memory/costs.json`. The bot builds up institutional memory across runs.
+
+# What's not done yet
+
+I'm not going to pretend it's finished.
+
+The listing flow exists but isn't wired to the menu. The code is there — IPFS upload via Pinata, ERC-721 contract deploy and mint via ethers.js on Base, OpenSea Seaport listing creation. The `ListingAgent` and `OpenSeaAgent` are built and the orchestrator has a `runListingFlow` method. But the UX piece — "after you generate an image, offer to list it" — isn't hooked up yet.
+
+The wallet is ready but inert. Self-custodial ETH wallet via ethers.js — initialise, check balance, sign transactions, preflight gas checks before attempting any on-chain transaction. Not wired to anything the user can trigger.
+
+So right now, Sketchy generates art and critiques it. The selling half is built but dark.
+
+# The part that keeps me interested
+
+Even in its current state, the system does something genuinely compelling: it disagrees with itself. The Art Director tries to be commercially interesting. The Critic is sceptical and hard to please. They're the same underlying model with different system prompts, different contexts, different jobs — and the outputs feel like a real creative tension.
+
+Watch the pipeline reject its own work three times and then surface the best-scoring attempt from iteration 2. Watch the Critic's prompt rewrite feed back into the Art Director's next attempt. The bot is iterating on its own taste.
+
+That's the thing I read about in that article years ago. That closed loop of create, evaluate, refine. The sell step is still dangling — but the creative core is working.
+
+Sketch Bot is coming. Just needs one more wire run.
