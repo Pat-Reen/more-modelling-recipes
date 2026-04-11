@@ -1,0 +1,112 @@
+---
+title: "Building a family hub app with Claude Code"
+description: |
+  My household runs on chaos. So I built Family Hub — a shared productivity app running on a kitchen tablet, hosted on Google Cloud, and built largely with the help of Claude Code.
+author:
+  - name: Pat Reen
+    url: https://www.linkedin.com/in/patrick-reen/
+categories:
+  - generativeai
+  - claudecode
+  - claude
+  - ai
+  - gcp
+  - python
+theme: main.css
+preview: img/prev_family_hub.png
+date: 2026-02-15
+draft: false
+output:
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    self_contained: true
+---
+
+# Background
+
+*...What if the family whiteboard could just talk to the app?...*
+
+My household runs on chaos. Between school schedules, meal planning, shared shopping lists, and keeping track of whose turn it is to do what, I needed something better than a whiteboard and a collection of sticky notes. So I built Family Hub — a shared productivity app for my family, running on a kitchen tablet 24/7. And I built most of it with the help of Claude Code.
+
+## Further reading
+
+* [Claude Code](https://claude.ai/code) — Anthropic's AI coding assistant, available as a CLI tool (`npm install -g @anthropic-ai/claude-code`).
+* [Google Cloud Run](https://cloud.google.com/run) — the serverless container platform used to host the backend.
+* [Firestore](https://cloud.google.com/firestore) — Google's managed NoSQL document store used as the database.
+
+# What is Family Hub?
+
+Family Hub is a Progressive Web App (PWA) designed to be the central coordination point for our household. It lives on a tablet mounted in the kitchen and gives the whole family a live view of what's happening, what needs to be done, and what's for dinner this week.
+
+## Calendar
+
+The app pulls from a shared Google Calendar and displays the weekly schedule in a clean, colour-coded view. Recurring events — swimming lessons, guitar practice, fortnightly cleaners — are pre-loaded as a standing schedule, so the calendar is always populated without manual entry every week.
+
+## Meal planning
+
+This is probably the most-used feature. We keep a whiteboard on the fridge with the weekly meal plan written on it. Rather than manually typing it into an app, I can take a photo of the whiteboard with my phone, upload it to Family Hub, and it uses Claude's vision capabilities to read the handwriting and extract the meal plan. It shows a diff of what changed before saving anything, so I can confirm it got things right.
+
+## Shopping list
+
+Same idea — photo of the shopping list on the whiteboard, and the app reads and imports it. Items can be categorised, ticked off, and promoted to "Up Next" which syncs them to the calendar.
+
+## To-do lists
+
+Separate task lists for personal tasks and shared home tasks. Simple, clean, and available from anywhere in the house.
+
+## News digest
+
+The app pulls from a set of RSS feeds — tech news, Australian news, entertainment — and uses Claude to summarise the headlines filtered by keywords we care about. It surfaces the relevant content and skips the noise.
+
+## Daily briefing
+
+Each morning the app generates a short AI briefing: here's what's on the calendar today, here's what needs your attention. Good for a quick scan over morning coffee.
+
+## Home and personal modes
+
+There's a toggle between Home mode — the shared view displayed on the kitchen tablet — and a personal view with individual task lists and filtered news preferences.
+
+# Hosted on Google Cloud
+
+Family Hub runs entirely on GCP. The backend is a Python FastAPI application, containerised with Docker and deployed to Cloud Run — Google's serverless container platform. Cloud Run means no servers to manage; push a new container image and it's live.
+
+The database is Firestore, Google's managed NoSQL document store. It handles everything: meal plans, shopping lists, to-do items, pending diffs waiting for approval, and app settings.
+
+The Google Calendar integration uses the Calendar API with a dedicated service account. Google's Identity-Aware Proxy (IAP) sits in front of the app so only authorised family members can access it — no passwords, just Google account authentication. Secrets (like the Anthropic API key) are stored in Google Secret Manager and injected at runtime. Deploying an update is a single command: `gcloud run deploy --source .`
+
+The whole setup is clean, low-maintenance, and costs very little to run. For a household app with light traffic, Cloud Run's free tier covers most of it.
+
+# Building it with Claude Code
+
+The app was built largely with the help of Claude Code — Anthropic's AI coding assistant available as a CLI tool.
+
+## What is Claude Code?
+
+Claude Code is a command-line tool that gives you an AI pair programmer directly in your terminal. Unlike a chat interface where you copy-paste code back and forth, Claude Code has direct access to your codebase. It can read files, write code, run terminal commands, search across your project, and make targeted edits — all within the context of your actual project.
+
+You interact with it through natural language. You describe what you want to build or fix, and it works through the implementation with you. It explains its reasoning, flags tradeoffs, asks clarifying questions when it needs to, and lets you review changes before they're applied.
+
+## How I used it
+
+**Scaffolding features quickly.** When I wanted to add the whiteboard photo scanning feature, I described the workflow — take a photo, send it to Claude Vision, get back structured data, show a diff, let the user confirm — and Claude Code helped me build the full pipeline end to end. It understood the existing patterns in the codebase and wrote code that fit.
+
+**Debugging GCP configuration.** Getting IAP, Cloud Run, and service accounts all talking to each other correctly involves a lot of moving parts. Claude Code helped me work through the configuration, spot permission issues, and understand what each piece needed.
+
+**Refactoring.** As the app grew, I needed to tidy things up — pull async patterns into place, make sure blocking calls weren't holding up the event loop, get the Firestore structure consistent. Having an assistant that could look across the whole codebase and suggest coherent refactors was genuinely useful.
+
+**Adding the small stuff.** Lots of features started as "it would be nice if..." — the night dimming on the tablet, school holiday suppression for the standing schedule, keyword filtering for news. These are the kinds of features that I might have skipped if each one required a full coding session. With Claude Code, they were quick additions.
+
+## What I found useful
+
+The thing I found most valuable was the conversational loop. I could describe a half-formed idea, see it turned into working code, point out what wasn't quite right, and iterate quickly. It's much faster than switching between documentation, Stack Overflow, and an editor.
+
+It also does a good job of not over-engineering things. When I asked for a feature, I got the feature — not an elaborate abstraction layer I didn't ask for.
+
+# The result
+
+Family Hub has been running on the kitchen tablet for months now. The kids use it to check the week's schedule. My partner uses the meal planner. I use the to-do list and news digest. The whiteboard is still there — but now it's a convenient input device rather than the source of truth.
+
+Building it would have taken significantly longer without Claude Code. Not because AI wrote the app for me — I made all the design decisions, reviewed every change, and did a lot of the implementation myself — but because having an assistant that understands your codebase and can move quickly across the whole project genuinely accelerates development.
+
+[![](img/family_hub.png){width=100%}](https://github.com/Pat-Reen/productivity-bot)
