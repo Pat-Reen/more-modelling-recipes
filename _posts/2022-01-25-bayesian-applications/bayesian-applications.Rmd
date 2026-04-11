@@ -1,7 +1,7 @@
 ---
 title: "Bayesian applications"
 description: |
-  A quick Bayesian refresher, an extention to regression models and other applications.
+  A quick Bayesian refresher, an extension to regression models and other applications.
 author:
   - name: Pat Reen 
     url: https://www.linkedin.com/in/patrick-reen/
