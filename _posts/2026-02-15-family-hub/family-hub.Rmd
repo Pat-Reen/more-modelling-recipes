@@ -1,7 +1,7 @@
 ---
 title: "Building a family hub app with Claude Code"
 description: |
-  My household runs on chaos. So I built Family Hub — a shared productivity app running on a kitchen tablet, hosted on Google Cloud, and built largely with the help of Claude Code.
+  My household runs on organised chaos. So I built Family Hub — a shared productivity app running on a kitchen tablet, hosted on Google Cloud, and built largely with the help of Claude Code.
 author:
   - name: Pat Reen
     url: https://www.linkedin.com/in/patrick-reen/
@@ -83,7 +83,7 @@ The app was built largely with the help of Claude Code — Anthropic's AI coding
 
 ## What is Claude Code?
 
-Claude Code is a command-line tool that gives you an AI pair programmer directly in your terminal. Unlike a chat interface where you copy-paste code back and forth, Claude Code has direct access to your codebase. It can read files, write code, run terminal commands, search across your project, and make targeted edits — all within the context of your actual project.
+Claude Code is a tool that gives you an AI pair programmer directly in your terminal. Unlike a chat interface where you copy-paste code back and forth, Claude Code has direct access to your codebase. It can read files, write code, run terminal commands, search across your project, and make targeted edits — all within the context of your actual project.
 
 You interact with it through natural language. You describe what you want to build or fix, and it works through the implementation with you. It explains its reasoning, flags tradeoffs, asks clarifying questions when it needs to, and lets you review changes before they're applied.
 
