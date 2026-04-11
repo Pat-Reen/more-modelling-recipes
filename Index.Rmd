@@ -3,6 +3,7 @@ title: "Modelling and visualisation"
 site: distill::distill_website
 listing: 
   posts:
+    - 2025-10-25-google-ai-studio-projects
     - 2023-06-20-price-elasticity
     - 2022-11-10-ui-data
     - 2022-09-16-topic-analysis
