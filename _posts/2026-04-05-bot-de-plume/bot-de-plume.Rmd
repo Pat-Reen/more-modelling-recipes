@@ -37,11 +37,9 @@ I've been meaning to write this post for a while, partly because the project had
 
 # The original problem
 
-Like a lot of writers, I tend to accumulate ideas faster than I can organise them. Characters multiply. Scenes drift. The plot you had in your head in January looks unrecognisable by March. I wanted a tool that would let me map a long project — chapters, scenes, character notes, location descriptions — and keep the threads from tangling.
+Like a lot of hobby writers, I tend to accumulate ideas faster than I can organise them. Characters multiply. Scenes drift. The plot you had in your head in January looks unrecognisable by March. I wanted a tool that would let me map a long project — chapters, scenes, character notes, location descriptions — and keep the threads from tangling.
 
-The existing options (Scrivener, Notion, plain markdown folders) all do organisation, but none of them knew what I was trying to write. I wanted something that could hold the context of my project and help me think inside it.
-
-So I built one.
+And I thought if I built one, it didn't count as procrastination.
 
 # What the app became
 
@@ -49,15 +47,15 @@ Bot de Plume is a Next.js app running entirely on the local filesystem — no da
 
 [![](img/bot_de_plume_app.png){width=100%}](https://github.com/Pat-Reen/productivity-bot)
 
-The core structure mirrors how I actually think about fiction: projects → chapters → scenes, with a parallel system for characters and locations. Each scene carries its own notes, a status (not started / draft / complete), a word count target, and a content type (prose, dialogue, action). Characters and locations can be pinned to an interactive map. Everything auto-saves.
+The core structure mirrors how I actually think about fiction: projects → chapters → scenes, with a parallel system for characters and locations. Each scene carries its own notes, a status (not started / draft / complete), a word count target, and a content type (prose, dialogue, action). Locations can be pinned to an interactive map. Everything auto-saves.
 
 The AI integration — Claude Sonnet and Grok, switchable per scene — isn't a simple "write this for me" button. Before any generation request goes out, the system assembles a full context packet: character profiles for everyone in the scene, the location description, notes on scene intent, summaries of prior scenes, any frozen passages that must appear verbatim, and the existing draft. The model receives the whole narrative situation, not just a prompt.
 
 # The agent pipeline
 
-What started as a simple generation button evolved into something more structured — building on the agent orchestration pattern developed in [Sketchy Bot](../2026-03-08-sketchy-bot/sketchy-bot.html). The app can chain agents with different roles through a single project: one focused on drafting, another on editing, another checking for continuity in character and location development, another doing copy-editing passes. Each agent operates on the same project context but with a different lens.
+What started as a simple generation button evolved into something more structured — building on the agent orchestration pattern developed in Sketchy Bot (see earlier post). The app can chain agents with different roles through a single project: one focused on drafting, another on editing, another checking for continuity in character and location development, another doing copy-editing passes. Each agent operates on the same project context but with a different lens.
 
-The idea was that you could move a scene through a pipeline — rough draft, character consistency check, editorial pass, copy-edit — without leaving the app.
+The idea was that you could move a scene or the novel as a whole through a pipeline — rough draft, character consistency check, editorial pass, copy-edit — without leaving the app.
 
 # Building it, then using it
 

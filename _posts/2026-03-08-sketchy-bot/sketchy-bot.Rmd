@@ -1,5 +1,5 @@
 ---
-title: "Sketch Bot is coming: building an AI art studio with Claude Code"
+title: "Sketch Bot is coming: building an AI art studio"
 description: |
   A multi-agent AI pipeline that researches the digital art market, directs and generates art, critiques its own output, and iterates until it meets the bar. An exploration of agent orchestration within an app — and a closed loop that almost closes.
 author:
