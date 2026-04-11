@@ -1,5 +1,5 @@
 ---
-title: "NotebookLM as a learning tool — Microsoft Fabric"
+title: "NotebookLM as a learning tool — Audio Overview"
 description: |
   Using Google NotebookLM's Audio Overview to convert Microsoft Fabric documentation into a podcast for gap-filling while running — and a follow-up applying the same approach to a corporate annual report, to unexpectedly strong reception from the leadership team.
 author:
@@ -12,7 +12,7 @@ categories:
   - dataanalytics
   - microsoftfabric
 theme: main.css
-preview: img/prev_notebooklm_fabric.png
+preview: img/prev_notebooklm_audio.png
 date: 2025-08-09
 draft: false
 output:
@@ -69,7 +69,7 @@ A few things stood out:
 
 The audio overview is not a substitute for hands-on work or for the kind of deep interrogation that the chat interface enables. It synthesises and explains; it does not answer specific questions, reason over your own data, or provide citable references in the way that the notebook chat does. It also inherits the limitations of the source material — if the documentation is incomplete or ambiguous on a topic, the generated audio will be too.
 
-For a broader comparison of the chat and audio overview modes, and a different application of NotebookLM to a more data-intensive problem, see the [earlier post on using it to explore insulin pump algorithm settings](../2024-10-06-notebooklm-t1d/notebooklm-t1d.html).
+For a broader comparison of the chat and audio overview modes, and a different application of NotebookLM to a more data-intensive problem, see the earlier post on using it to explore insulin pump algorithm settings.
 
 ## Follow-up: ClearView FY25 annual report
 
