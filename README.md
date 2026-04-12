@@ -2,7 +2,7 @@
 
 A collection of practical, reproducible data science and actuarial modelling recipes — working code examples covering statistical modelling, visualisation, and data transformation techniques.
 
-Live site: https://pat-reen.github.io/More-Modelling-Recipes/
+Live site: https://pat-reen.github.io/more-modelling-recipes/
 
 ## Topics covered
 

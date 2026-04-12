@@ -2,7 +2,7 @@
 name: "More-recipes"
 title: "More Modelling Recipes"
 description: "Practical, reproducible data science and actuarial modelling recipes covering statistical modelling, visualisation, and data transformation."
-base_url: https://pat-reen.github.io/More-Modelling-Recipes/
+base_url: https://pat-reen.github.io/more-modelling-recipes/
 theme: main.css
 navbar:
   logo: img/logo.png
