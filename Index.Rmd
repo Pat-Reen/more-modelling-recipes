@@ -9,6 +9,7 @@ listing:
     - 2025-10-25-google-ai-studio-projects
     - 2025-08-09-notebooklm-audio
     - 2024-10-06-notebooklm-t1d
+    - 2025-01-15-copilot-studio-pds-agent
     - 2024-01-15-custom-gpts
     - 2023-06-20-price-elasticity
     - 2022-11-10-ui-data
