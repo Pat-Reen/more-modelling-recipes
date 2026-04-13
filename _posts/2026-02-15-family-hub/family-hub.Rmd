@@ -67,15 +67,76 @@ Each morning the app generates a short AI briefing: here's what's on the calenda
 
 There's a toggle between Home mode — the shared view displayed on the kitchen tablet — and a personal view with individual task lists and filtered news preferences.
 
-# Hosted on Google Cloud
+# The AI vision pipeline
 
-Family Hub runs entirely on GCP. The backend is a Python FastAPI application, containerised with Docker and deployed to Cloud Run — Google's serverless container platform. Cloud Run means no servers to manage; push a new container image and it's live.
+The defining feature of the app is photo-based data entry. The flow sounds simple — photograph a whiteboard, extract structured data, preview a diff, confirm — but the implementation has four distinct stages, each with a different job.
 
-The database is Firestore, Google's managed NoSQL document store. It handles everything: meal plans, shopping lists, to-do items, pending diffs waiting for approval, and app settings.
+## Step 1: Classification
 
-The Google Calendar integration uses the Calendar API with a dedicated service account. Google's Identity-Aware Proxy (IAP) sits in front of the app so only authorised family members can access it — no passwords, just Google account authentication. Secrets (like the Anthropic API key) are stored in Google Secret Manager and injected at runtime. Deploying an update is a single command: `gcloud run deploy --source .`
+The first call is to Claude Haiku with a `classify_image` tool. Haiku is the right model for a gate: it's fast, cheap, and the task (is this image relevant? what type is it?) is well within its capabilities. The tool returns:
 
-The whole setup is clean, low-maintenance, and costs very little to run. For a household app with light traffic, Cloud Run's free tier covers most of it.
+```json
+{
+  "image_type": "family_calendar | meals | shopping | work_pat | unknown",
+  "confidence": "high | medium | low",
+  "month_year": "July 2025",
+  "notes": "Handwriting legible, dates visible in top row"
+}
+```
+
+Unknown or low-confidence images are rejected before any further processing. This keeps the extraction step focused and avoids spending on images the system can't handle.
+
+## Step 2: Extraction
+
+The same model handles extraction, but now with structured tool calls. Each image type triggers a different set of tools:
+
+| Image type | Tools available |
+|---|---|
+| `meals` | `set_weekly_meals` |
+| `shopping` | `set_shopping_list`, `add_important_date` |
+| `family_calendar` | `add_calendar_event`, `flag_cancellation` |
+| `work_pat` / `work_nia` | `add_work_city_day`, `add_work_home_day` |
+
+Defining the data schema as tool parameters forces the model to return structured output, not prose that needs parsing. The tool parameters are a typed schema; the model fills them in. This is significantly more reliable than asking the model to return JSON in a prompt and parsing the response.
+
+The system prompt for extraction includes `conventions.py` — a module of family-specific interpretation rules for our physical calendar. Some examples: "⊕ Pod" means an Omnipod insulin pump change; a tick on a weekend means Claire is going to grandparents; a person's name in the city column means a work-from-office day. Without this layer, the model extracts what's literally written on the whiteboard, and a lot of it would be meaningful only to us.
+
+## Step 3: Diff generation
+
+The extracted data is compared against what already exists. Meals: extracted week vs the current Firestore meal plan. Shopping: extracted items vs the current list. Calendar: extracted events vs existing Google Calendar events in the same date range. Each item is tagged `added`, `removed`, `unchanged`, or `uncertain`. The diff is stored in Firestore with a 24-hour TTL.
+
+The key design decision here is that **no image is ever stored**. Photos flow entirely in memory — base64-encoded to Claude, used for extraction, then discarded. No S3 bucket, no Cloud Storage, no GDPR surface area. For a household app handling photos of family whiteboards, this is the right call.
+
+## Step 4: Confirm
+
+The frontend renders the diff as a preview. The user can remove individual items from the `added` list before confirming. `POST /api/confirm/{diff_id}` applies the diff — Firestore writes for meals and shopping, Google Calendar API calls for events. `DELETE /api/confirm/{diff_id}` discards it. Nothing touches live data until the user confirms.
+
+This pattern — AI pipeline produces a proposed change, stores it with a TTL, waits for human confirmation — means the system can never modify live data unilaterally. It's the right approach for any AI pipeline that writes to state you care about.
+
+# The GCP architecture
+
+The backend is a Python FastAPI application, containerised with Docker and deployed to Cloud Run.
+
+```
+FastAPI (Cloud Run)
+  │
+  ├── Firestore            All app state: meals, shopping, todos,
+  │                        pending diffs (24h TTL), standing schedule, settings
+  │
+  ├── Google Calendar API  Calendar events live here, not in Firestore
+  │   (service account)
+  │
+  ├── IAP                  Auth layer — sits in front of the app,
+  │                        sets X-Goog-Authenticated-User-Email header
+  │
+  └── Secret Manager       API keys injected at runtime
+```
+
+Cloud Run scales to zero when idle — for a household app with light traffic, the monthly cost is near zero. The Firestore instance is the only always-on resource.
+
+Identity-Aware Proxy handles authentication before requests reach the app. The backend reads the `X-Goog-Authenticated-User-Email` header to identify the caller — there's zero auth code in the application layer. Only email addresses in `ALLOWED_USERS` can reach the app; everyone else gets a 403 at the proxy.
+
+The frontend has no build step. It's a single `index.html` + `app.js` using Vue 3 and Tailwind CSS from CDN. The Docker build packages the Python backend; the frontend is served as static files. Deploying an update is one command: `gcloud run deploy --source .`
 
 # Building it with Claude Code
 
@@ -83,9 +144,7 @@ The app was built largely with the help of Claude Code — Anthropic's AI coding
 
 ## What is Claude Code?
 
-Claude Code is a tool that gives you an AI pair programmer directly in your terminal. Unlike a chat interface where you copy-paste code back and forth, Claude Code has direct access to your codebase. It can read files, write code, run terminal commands, search across your project, and make targeted edits — all within the context of your actual project.
-
-You interact with it through natural language. You describe what you want to build or fix, and it works through the implementation with you. It explains its reasoning, flags tradeoffs, asks clarifying questions when it needs to, and lets you review changes before they're applied.
+Claude Code gives you an AI pair programmer directly in your terminal. Unlike a chat interface, it has direct access to your codebase — it can read files, write code, run terminal commands, and make targeted edits, all within the context of your actual project. You describe what you want; it works through the implementation with you, explains its reasoning, and lets you review changes before they're applied.
 
 ## How I used it
 
@@ -101,7 +160,37 @@ You interact with it through natural language. You describe what you want to bui
 
 The thing I found most valuable was the conversational loop. I could describe a half-formed idea, see it turned into working code, point out what wasn't quite right, and iterate quickly. It's much faster than switching between documentation, Stack Overflow, and an editor.
 
-It also does a good job of not over-engineering things. When I asked for a feature, I got the feature — not an elaborate abstraction layer I didn't ask for.
+Two other things are worth calling out separately. First: the diff-before-write pattern means the AI can never modify live data unilaterally — every change goes through a human review step. That's right for a family app; it would be essential at any larger scale. The pipeline's job is to produce a proposed change, not to apply it.
+
+Second: model selection by task. Classification uses Haiku — cheap, fast, and good enough for a binary gate. Extraction uses Haiku too, but with structured tool calls that compensate for the model tier. For the daily briefing and news digest, which require synthesis and judgement, the right model earns its extra cost. The right pattern isn't "use the best model for everything" — it's matching the model to what each task actually requires.
+
+# What would change at enterprise scale
+
+The current architecture is household-scale by design. At enterprise scale, several things would change:
+
+**Auth** — IAP is elegant for a household app: Google accounts, zero auth code. At enterprise scale, you'd replace it with OIDC/OAuth with role-based access control.
+
+**Conventions** — `conventions.py` is a hardcoded file of family-specific interpretation rules. At enterprise scale, those rules would live in a configuration UI, not in source code.
+
+**Image handling** — Photos currently flow in memory and are discarded. An enterprise version would need audit logging: what was extracted from each photo, when, by whom — for both operational and compliance reasons.
+
+**Multi-tenancy** — The current app is single-household. Adding tenancy would require namespacing all Firestore collections and ensuring complete data isolation between tenants.
+
+**Extraction model** — Haiku works because the extractions are bounded: a week of meals, a shopping list, a month's calendar. For more complex or ambiguous documents, you'd want a more capable model and a more sophisticated conventions layer.
+
+# If you were building this
+
+The patterns that transfer:
+
+**Use a cheap model as a gate before an expensive one.** Classification is a cheap call — is this image relevant? what type is it? Extraction is more expensive. Failing fast on classification keeps costs predictable and avoids running the full pipeline on images the system can't handle.
+
+**Use structured tool calls for extraction, not JSON prompting.** Defining your data schema as tool parameters forces the model to return structured output. The tool parameters are a typed schema; the model fills them in. This is more reliable than asking for JSON in a prompt and parsing the response, and you get validation for free.
+
+**Separate domain-specific conventions from the extraction pipeline.** The `conventions.py` pattern — interpretation rules kept in a separate module — means the extraction pipeline is reusable across different contexts. The pipeline doesn't change; the conventions do. If you're building a document extraction system with domain-specific terminology or abbreviations, this separation is worth building from the start.
+
+**Make diff-before-write your default for AI pipelines that modify state.** The AI produces a proposed change; a human confirms it; only then does anything get written. The diff is the review surface. This pattern works for any AI system that modifies state you care about — and it's the difference between a system people trust and one they approach with caution.
+
+**Serverless is the right hosting model for personal tools.** Cloud Run's scale-to-zero means near-zero cost when the app isn't being used. The deploy model is simple: `gcloud run deploy --source .` For anything that doesn't have sustained traffic, pay-per-use compute makes more sense than always-on instances.
 
 # The result
 
