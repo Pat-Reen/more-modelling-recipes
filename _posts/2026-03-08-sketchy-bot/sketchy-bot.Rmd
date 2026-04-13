@@ -47,7 +47,7 @@ I wanted to recreate that closed-loop concept with a specific architectural twis
 
 Not one big prompt. Not a chatbot pretending to be an art studio. Actual agents, each purpose-built, handing off to the next.
 
-This distinction matters. There's a growing pattern of using multiple AI coding agents in parallel to handle a backlog — one agent per ticket, working independently. That's a powerful pattern for software development. This is something different: agents orchestrated *within* an application, where each one is a functional component of a running system. The same underlying model, but given different roles, different contexts, and different instructions — operating together as a pipeline rather than independently as a team.
+This distinction matters. There's a growing pattern of using multiple AI coding agents in parallel to handle a workflow. That's a powerful pattern captured here is a small form with agents orchestrated *within* an application, where each one is a functional component of a running system. The same underlying model, but given different roles, different contexts, and different instructions — operating together as a pipeline rather than independently as a team.
 
 # The agents
 
@@ -84,10 +84,6 @@ The pipeline tracks the best-scoring image across all iterations, not just the l
 
 [![](img/sketchy_pipeline.png){width=100%}](https://github.com/Pat-Reen/sketchy-bot)
 
-# Building it with Claude Code
-
-What made this actually fun to build — rather than a months-long slog — was using Claude Code as my development environment. Not just as a code generator, but as a collaborator that understood the whole system.
-
 ## Extended thinking for the Art Director
 
 The most interesting agent to build was the Art Director. Its job is to read market research and produce a Grok image prompt that's commercially viable and creatively interesting. That's a genuinely hard brief.
@@ -108,8 +104,6 @@ The Critic takes the generated image, base64-encodes it, and passes it to Claude
 | Marketability | Would a serious collector pay real money for this? |
 
 `overall = average of four scores`
-
-One implementation detail worth noting: Grok returns JPEG even when PNG is implied by the prompt. If you trust the file extension, Claude throws a media type mismatch error and the whole pipeline stalls. The fix is to detect the actual format from the first two bytes of the file — magic bytes — rather than the extension. JPEG files start with `FF D8`; PNG files start with `89 50 4E 47`. It's a small thing, but it's the kind of edge case that's invisible until it isn't, and when it breaks it breaks silently in a confusing place.
 
 ## Orchestration and streaming
 

@@ -15,7 +15,7 @@ categories:
   - evaluation
 theme: main.css
 preview: img/prev_copilot_pds.png
-date: 2025-01-15
+date: 2026-01-15
 draft: false
 output:
   distill::distill_article:
@@ -30,30 +30,28 @@ output:
 
 A year ago I built Clear PDS — a custom GPT with ten life insurance Product Disclosure Statements uploaded as its knowledge base, designed for comparative analysis across the Australian market. [That post](../2024-01-15-custom-gpts/custom-gpts.html) ended on a specific note about its limitations: retrieval over long, dense documents was imperfect; the model would sometimes surface adjacent content and present it as an answer; and instructions about uncertainty needed to be explicit and tight.
 
-The same problem — compare Australian retail life insurance PDSs on demand — is genuinely worth solving. So I rebuilt it.
+The same problem — compare Australian retail life insurance PDSs on demand.
 
 This time: Copilot Studio's Agent Builder. A more structured instruction set. A cleaner knowledge base. A proper attempt at evaluation. And, as it turned out, a collaboration with the people who actually use this kind of tool daily — which produced the most useful finding of the whole exercise.
 
 ## Further reading
 
-* [Microsoft Copilot Studio Agent Builder](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/agent-builder) — Microsoft's documentation on building agents in Copilot Studio, including knowledge configuration, topics, actions, and Teams deployment.
+* [Microsoft Copilot Studio Agent Builder](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/agent-builder) — Microsoft's documentation on building agents in Copilot Studio, including knowledge configuration, topics, tools, and Teams deployment.
 * [Custom GPTs post](../2024-01-15-custom-gpts/custom-gpts.html) — the earlier version of this tool, built on OpenAI's platform.
 
 # What is Copilot Studio Agent Builder?
 
 Copilot Studio is Microsoft's low-code platform for building AI agents integrated with Microsoft 365. The Agent Builder is the no-code entry point: you configure an agent through a form-based UI — description, instructions, knowledge sources — and it's deployed to Teams or other Microsoft 365 surfaces without writing a line of code.
 
-Structurally it's similar to custom GPTs. The key inputs are the same: a description and purpose that define what the agent is for, a set of instructions that constrain its behaviour and shape its outputs, and a knowledge base of uploaded files the agent can retrieve from at query time. The underlying model is GPT-4o.
+Structurally it's similar to custom GPTs. The key inputs are the same: a description and purpose that define what the agent is for, a set of instructions that constrain its behaviour and shape its outputs, and a knowledge base of uploaded files the agent can retrieve from at query time. The underlying model is ChatGPT.
 
 The distinction is integration depth. A custom GPT is shared via a link and lives in the ChatGPT interface. A Copilot Studio agent can be pinned to a Teams channel, embedded in a SharePoint page, or exposed as a standalone web chat. For teams that already work in Microsoft 365, this means the agent can live where the work already happens — not in a separate tool that requires a context switch.
 
-The Agent Builder also exposes Topics and Actions. Topics are conversation branches that trigger on specific phrases — you can route "what's the suicide exclusion?" differently from a general PDS query, applying specific instructions or injecting context for that branch. Actions are connections to external APIs or Microsoft Graph, allowing the agent to look up data outside its knowledge base. I used both in this build; more on what worked and what didn't below.
+The Agent Builder also exposes Topics and Tools. Topics are conversation branches that trigger on specific phrases — you can route "what's the suicide exclusion?" differently from a general PDS query, applying specific instructions or injecting context for that branch. 
 
 # The knowledge base
 
-The PDS corpus covers seven insurers: ClearView, TAL, AIA, Acenda (MLC Life), Zurich, Neos, and NobleOak — all current PDSs at the time of build, uploaded as PDFs. Each PDF is indexed against the agent at configuration time and retrieved via embedding similarity at query time.
-
-One thing the Agent Builder makes explicit that custom GPTs obscure: you can see and control the knowledge source names. This matters for a multi-document tool. When the expected answer for a query is "the TAL PDS states X; the ClearView PDS states Y", the agent needs to know which document each retrieved chunk came from and surface that attribution clearly. Naming the knowledge sources explicitly — `tal-accelerated`, `clearview-cc`, `aia-priority-protection` — and referencing those names in the instructions gives the agent a vocabulary for attribution.
+The PDS corpus covers seven insurers: ClearView, TAL, AIA, Acenda (MLC Life), Zurich, Neos, and NobleOak — all current PDSs at the time of build, uploaded as PDFs. Each PDF is indexed against the agent at configuration time and retrieved via embedding similarity at query time. The embedding however is not controlled by the user/ builder.
 
 # The instruction problem
 
@@ -61,9 +59,9 @@ The first version of the instructions was too restrictive.
 
 The intent was sound: for a tool used to inform product decisions in a regulated industry, preventing the agent from fabricating or extrapolating beyond the documents is genuinely important. The instructions led with "use only information explicitly stated in the PDS documents" and "do not infer, assume, or extend beyond the PDS."
 
-The problem was that this collapsed retrieval-and-synthesis into fabrication in the agent's behaviour. Comparing two insurers' income protection terms requires the agent to retrieve relevant chunks from two documents, extract the substantive content, and assemble a comparison. That's synthesis, not inference — but the tight wording treated them the same. The result: the agent hedged rather than synthesised. Asking about waiting periods returned something like "waiting period options are specified in the policy schedule and vary by occupation category" — technically true, but not what anyone asked.
+The problem was that this collapsed retrieval-and-synthesis into fabrication in the agent's behaviour. Comparing two insurers' income protection terms requires the agent to retrieve relevant chunks from two documents, extract the substantive content, and assemble a comparison. That's synthesis, not inference — but the tight wording treated them the same. The result: the agent hedged rather than synthesised or simply refused to answer or returned an error.
 
-A second issue was PDS identification. When the agent retrieved a chunk, it wasn't always confident about which document it came from. Responses would contain the right information but attribute it vaguely to "the relevant PDS" rather than naming the insurer. This was partly an instruction gap — I hadn't explicitly told the agent how to attribute retrieved content — and partly a retrieval issue where chunks from similarly-structured sections of different PDSs were scoring similarly.
+A second issue was PDS identification. When the agent retrieved a chunk, it wasn't always confident about which document it came from. Responses would contain the right information but attribute it vaguely to "the relevant PDS" rather than naming the insurer. 
 
 ## The revised instructions
 
@@ -89,23 +87,17 @@ The revised version distinguishes clearly between the constraint that matters (g
 
 The typed conditions list is the most useful structural addition. Requiring the agent to classify each condition forces it to be specific about what kind of thing it's stating — a trigger for a benefit, an exclusion, a cap on the amount — rather than presenting a flat list of facts. It also makes responses machine-parseable if you want to run automated checks against them.
 
-# Topics, Actions, and what didn't work
+# Topics, Tools, and what didn't work
 
 The Copilot Studio Agent Builder exposes two mechanisms for additional control beyond the main instructions.
 
-**Topics** let you define conversation branches that trigger on recognised phrases. The intent was to give the agent a separate branch for sensitive topics — mental health exclusions and suicide clauses specifically — with instructions tuned for those queries rather than applying the general instructions. The agent was inconsistent on these topics: ClearView does not have a blanket mental health exclusion (a common misconception), and the 13-month suicide clause is stated plainly in the PDS, but the agent would sometimes hedge or decline to engage fully on both.
+**Topics** let you define conversation branches that trigger on recognised phrases. The intent was to give the agent a separate branch for sensitive topics — mental health exclusions and suicide clauses specifically — with instructions tuned for those queries rather than applying the general instructions. The agent was inconsistent on these topics it would sometimes hedge or decline to engage.
 
-The Topics configuration didn't resolve this. Adding a topic that triggered on "mental health" or "suicide" and routed to a branch with more explicit instructions produced responses that were more structured but less useful — longer, more conditional, and slower. The latency difference was noticeable enough that the team would have preferred the hedged quick answer to the precise slow one. My read is that this is fundamentally a model governance constraint, not an instruction gap — and that the right fix is at the level of the general instructions (being explicit that these topics are in scope and the PDS wording should be reported directly) rather than a separate branch.
-
-**Actions** allow the agent to call external APIs. I set up a read-only connection to look up ClearView's internal product system for current schedule values — policy fees, occupation category mappings — that aren't in the PDS. This worked for the narrow use case it was configured for, but added complexity that slowed down the configuration cycle. For a first version, the value wasn't worth the overhead.
-
-The net result: the agent with well-tuned general instructions and a structured output format outperforms the agent with Topics and Actions on almost every query. Added configuration is only worth it if the base instruction layer has a genuine gap it can't fill.
+The net result: the agent with well-tuned general instructions and a structured output format outperformed the agent with Topics on most queries. Added configuration is only worth it if the base instruction layer has a genuine gap it can't fill.
 
 # Teams integration
 
-The distribution story is the clearest win. The agent is embedded in a product and pricing team channel. Questions can be asked in context, without context-switching, by people who already have the answer to "how do I access the tool" — they're already in Teams, they can just ask.
-
-This changes the nature of the feedback loop too. When the tool is shared via a link, usage is invisible. When it's in a Teams channel, you can see what people ask, where it succeeds, and — more usefully — where it hedges or misses. That visibility is what made the collaboration with the product team possible.
+The distribution via Teams is the clearest win. The agent is embedded in a product and pricing team channel. Questions can be asked in context, without context-switching.
 
 # The eval
 
@@ -113,9 +105,9 @@ Building the tool is the easy part. Knowing whether it works is harder.
 
 I put together an initial evaluation set using Claude and ChatGPT — fourteen questions covering income protection, TPD, trauma, and cross-insurer comparisons, each with an expected answer grounded in the PDS content. Reasonable starting coverage.
 
-A product professional reviewed them. The verdict was direct: *"Your test queries are way too clean."*
+A product team professional reviewed them. The verdict was direct: *"Your test queries are way too clean."*
 
-The critique was specific and right. Of the fourteen queries, four were genuinely good: the suicide exclusion, activities of daily living for TPD, any occupation versus own occupation definitions, and the notification timeframe for a claim. The remaining ten were described as "a mix of unhelpful and downright evasive."
+Of the fourteen queries, four were genuinely good: the suicide exclusion, activities of daily living for TPD, any occupation versus own occupation definitions, and the notification timeframe for a claim. The remaining ten were described as "a mix of unhelpful and downright evasive."
 
 Three examples make the gap concrete:
 
@@ -131,7 +123,7 @@ The pattern across all three is the same. When you ask a language model to gener
 
 An agent that scores well against this eval has been measured on whether it can match a hedged, evasive style. An agent that scores well against the professional's eval has been measured on whether it actually answers the question correctly.
 
-The professional also flagged a dimension the initial eval missed entirely: questions where the PDS is deliberately silent. A good agent needs to be able to say, confidently, that a question cannot be answered from the documents — and this is specifically what you should be testing. Several of the real-world queries are designed to catch an agent that invents rather than admitting the limit of its knowledge.
+The product professional also flagged a dimension the initial eval missed entirely: questions where the PDS is deliberately silent. A good agent needs to be able to say, confidently, that a question cannot be answered from the documents — and this is specifically what you should be testing. Several of the real-world queries are designed to catch an agent that invents rather than admitting the limit of its knowledge.
 
 ## What good eval looks like
 
@@ -143,8 +135,6 @@ The rubric the professional offered for evaluating responses in practice:
 4. Does it set appropriate scope boundaries (tax advice, adviser responsibility) without over-explaining?
 5. Is the response the minimal necessary length? Over-explaining is a failure mode.
 
-Point 5 is the one that surprises. "Does ClearView exclude suicide?" should get a direct answer with the 13-month rule and the relevant triggers — not a paragraph about the structure of exclusion clauses. Brevity in a correctly-bounded answer is quality.
-
 The professional also suggested tagging each eval query with two dimensions: `answer_type` (direct_fact, permission, taxonomy, policy_vs_system, pds_silent) and `expected_docs` (PDS, Adviser Guide, or "outside PDS"). This turns the eval from a list of questions into a structured test suite — you can measure not just aggregate accuracy but whether the system breaks down specifically on pds_silent queries, or on cross-insurer comparisons, or on questions where the right answer is to refer to an adviser.
 
 The more sophisticated eval set developed alongside the custom RAG version of this tool takes these properties seriously. It includes difficulty ratings (easy / medium / hard), explicit `must_contain` and `must_not_contain` constraints per query, notes flagging known traps (the mental health misconception, the claims notification timing that is "as soon as reasonably possible" rather than any specific number of days), and answer-type tagging. This is an eval designed to catch specific failure modes, not just confirm the agent can locate text.
@@ -153,13 +143,11 @@ The more sophisticated eval set developed alongside the custom RAG version of th
 
 Sharing the agent in Teams opened a collaboration that's changed how I think about both the tool and the eval.
 
-The plan is to work through the eval set with the product team — identifying where the agent's responses are useful versus evasive, where it's confident when it shouldn't be, and where the instruction set needs to be sharpened. There are parts of the Copilot Studio Agent Builder I haven't fully used: Topics configuration to route sensitive-topic queries differently, and the broader Action framework to pull in data that's outside the PDSs but useful in context.
+The plan is to work through the eval set with the product team — identifying where the agent's responses are useful versus evasive, where it's confident when it shouldn't be, and where the instruction set needs to be sharpened. There are parts of the Copilot Studio Agent Builder I haven't fully used: Topics configuration to route sensitive-topic queries differently, and the broader Tool framework.
 
 At the same time, I'm building a custom RAG pipeline over the same corpus. The Copilot Studio agent is deployable today; the custom RAG approach is designed to fix the retrieval limitations the Copilot Studio experience made concrete. Better chunking at section boundaries, structural metadata (section name, insurer, document version), and metadata-filtered retrieval before similarity scoring. For PDSs — long but consistently structured, with identifiable sections for benefits, exclusions, definitions, and conditions — this produces materially better retrieval quality, especially for cross-insurer queries where the relevant chunk might be a specific subsection from two different documents.
 
 The eval set is the shared asset across both. Running the same queries against the Copilot Studio agent and the custom RAG pipeline gives a direct comparison on the metrics that matter: not whether they can find text in a document, but whether they state the formula when asked about a calculation, whether they correctly flag when the PDS is silent, and whether they attribute responses to the right source document. That comparison is still to come.
-
-But the eval exists. And it's honest. That's further than most people get before they start optimising.
 
 # If you were building this
 
