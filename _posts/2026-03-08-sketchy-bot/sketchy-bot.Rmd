@@ -47,7 +47,22 @@ I wanted to recreate that closed-loop concept with a specific architectural twis
 
 Not one big prompt. Not a chatbot pretending to be an art studio. Actual agents, each purpose-built, handing off to the next.
 
-This distinction matters. There's a growing pattern of using multiple AI coding agents in parallel to handle a backlog — one agent per ticket, working independently. That's a powerful pattern for software development. This is something different: agents orchestrated *within* an application, where each one is a functional component of a running system. The same underlying model, but given different roles, different contexts, and different instructions — operating together as a pipeline rather than independently as a team.
+This distinction matters. There's a growing pattern of using multiple AI coding agents in parallel to handle a workflow. That's a powerful pattern captured here is a small form with agents orchestrated *within* an application, where each one is a functional component of a running system. The same underlying model, but given different roles, different contexts, and different instructions — operating together as a pipeline rather than independently as a team.
+
+# The agents
+
+The system has six agents. They're all backed by the same underlying model (Claude Opus), but each is a distinct module with its own system prompt, its own input schema, and its own output type. The orchestrator knows the interfaces; it doesn't care about the implementations.
+
+| Agent | Role | Input | Output |
+|---|---|---|---|
+| ResearchAgent | Market trend synthesis | Style preferences | `ResearchResult` — trending styles, price benchmarks |
+| ArtDirectorAgent | Prompt engineering | Research + style hint | `ArtPrompt` — prompt, negativePrompt, style, reasoning |
+| GrokGenerator | Image generation | Prompt | `GeneratedImage` — file path, format, metadata |
+| CriticAgent | Scoring + rewrite suggestion | Image (base64) + prompt | `CritiqueResult` — four dimension scores, promptRewrite |
+| SalesAgent | Listing copy + pricing | Image + critique | Title, description, tags, ETH price |
+| ListingAgent | Mint and list on-chain | Image + metadata | Token ID, listing URL |
+
+The agent separation is also practical: when the Critic scores too low, the orchestrator calls `ArtDirectorAgent.refine()` with the Critic's `promptRewrite`. The Director and Critic interact without knowing anything about each other — they're just passing typed data through the orchestrator.
 
 # The pipeline
 
@@ -67,27 +82,30 @@ The result is Sketchy — or Sketch Bot. Here's what it does:
 
 The pipeline tracks the best-scoring image across all iterations, not just the last one. So if attempt 2 scores 7.8 and attempt 3 regresses to 6.1, the bot saves attempt 2 and tells you exactly what happened.
 
-[![](img/sketchy_pipeline.png){width=100%}](https://github.com/Pat-Reen/productivity-bot)
-
-# Building it with Claude Code
-
-What made this actually fun to build — rather than a months-long slog — was using Claude Code as my development environment. Not just as a code generator, but as a collaborator that understood the whole system.
+[![](img/sketchy_pipeline.png){width=100%}](https://github.com/Pat-Reen/sketchy-bot)
 
 ## Extended thinking for the Art Director
 
 The most interesting agent to build was the Art Director. Its job is to read market research and produce a Grok image prompt that's commercially viable and creatively interesting. That's a genuinely hard brief.
 
-I gave it Claude's extended thinking mode — 8,000 token budget for initial prompts, 4,000 for refinements. This lets it reason through the problem before committing to an answer: what styles is Grok actually good at? What's too clichéd? What combination of subject, setting, and mood is most likely to feel original?
+I gave it Claude's extended thinking mode — 8,000 token budget for initial prompts, 4,000 for refinements. The budget is higher for initial generation because the full creative decision has to be made from scratch; refinements are more constrained, working from an existing prompt and the Critic's feedback. Extended thinking lets the model reason through the problem before committing: what styles is Grok actually good at? What's too clichéd? What combination of subject, setting, and mood is most likely to feel original? That reasoning isn't visible in the output, but it shows up in the quality of the prompt.
 
-The system prompt bans an explicit list of AI art clichés: lone figure on cliff gazing at sunset, floating islands, glowing forests, purple-teal synthwave grids. The Critic is instructed to score originality ≤ 5 for any of them. It's a tighter brief than most human art directors give.
+The system prompt bans an explicit list of AI art clichés: lone figure on cliff gazing at sunset, floating islands, glowing forests, purple-teal synthwave grids. The Critic is instructed to score originality ≤ 4 for any of them. The same list appears in both agents' system prompts — the Art Director knows what the Critic will penalise and tries to avoid it, and the Critic flags it when it slips through. It's a shared constraint rather than a local one, which creates a genuine feedback loop rather than just a one-sided instruction.
 
 ## Claude Vision for the Critic
 
-The Critic agent takes the generated image, base64-encodes it, and passes it to Claude with a scoring rubric. One implementation detail worth noting: Grok returns JPEG even when PNG is implied, so the pipeline detects the actual format from magic bytes rather than trusting the file extension. Without this, Claude throws a media type mismatch error and the whole pipeline stalls.
+The Critic takes the generated image, base64-encodes it, and passes it to Claude with a scoring rubric. It scores four dimensions:
 
-Originality is weighted most heavily in the system prompt. Claude is explicitly instructed to score generic AI art ≤ 5 and reserve 7+ for work with genuine creative identity. It's a tough but consistently fair critic.
+| Dimension | Notes |
+|---|---|
+| Technical Quality | Capped at 4 if AI generation artifacts are detected (extra fingers, garbled text) |
+| Composition | Balance, focal point, visual flow |
+| **Originality** | **Weighted most heavily.** Capped at 4 for detected clichés; 7+ requires genuine creative identity |
+| Marketability | Would a serious collector pay real money for this? |
 
-## Streaming the whole pipeline
+`overall = average of four scores`
+
+## Orchestration and streaming
 
 The orchestrator is an async generator. Every stage yields text as it runs, and the CLI streams it to stdout. You watch the pipeline think in real time:
 
@@ -107,11 +125,36 @@ The orchestrator is an async generator. Every stage yields text as it runs, and 
    ⚠️  Score 6.75 < 8. Refining prompt...
 ```
 
+This isn't cosmetic. The async generator pattern means each agent can produce multiple yield points — a status message when it starts, updates as it works, results when it finishes — and the orchestrator threads all of them to the CLI without any agent needing to know about the output layer. The pipeline is observable without being coupled to any particular display.
+
+Best-of-N tracking works the same way: `bestImage` and `bestScore` are maintained by the orchestrator across all iterations. If attempt 3 regresses below attempt 2, the final output is still attempt 2. Score history is printed so you can see exactly which iteration won and why. It's a trivial addition to the orchestrator, but it meaningfully changes what the pipeline produces — the last result is rarely the best result.
+
 ## Hooks and memory
 
-One of the Claude Code features I leaned into most was hooks — shell scripts that run before and after every tool call. I wired these up to log everything to `memory/tool-log.jsonl`: every API call, every file write, every cost. The `memory/` directory accumulates a persistent record of the bot's decisions across sessions.
+One of the Claude Code features I leaned into most was hooks — shell scripts that run before and after every tool call. I wired these up to log everything to `memory/tool-log.jsonl`: tool name, timestamp, a brief summary before the call, and the result summary after. The hooks are registered in `.claude/settings.json`. They exit 0 to allow the call, but the scaffold is there for a gate that could exit 2 to block a call — useful for a rate-limiting or human-approval pattern if the pipeline ever becomes more autonomous.
 
-Market research is cached to `memory/latest-research.json` so the art generation path can skip the research step if it's been run recently. Listings are appended to `memory/listings.json`. Costs are tracked in `memory/costs.json`. The bot builds up institutional memory across runs.
+The memory layer does several things beyond the tool log:
+
+- `memory/costs.json` — every API call logged with timestamp and label. Cost attribution at the individual call level, not just session totals.
+- `memory/latest-research.json` — market research cached between runs. Generation-only runs can skip the research step if it's been done recently.
+- `memory/listings.json` — every successful listing recorded with token ID, IPFS URIs, scores, and price.
+
+The `memory/` directory accumulates across sessions. It's a persistent operational record of the bot's decisions — not just a session cache.
+
+# The NFT infrastructure
+
+The selling half of Sketchy is built. It's just not wired to the menu yet.
+
+The listing flow works like this:
+
+1. **IPFS upload** via Pinata — image and ERC-721 metadata JSON pinned to IPFS
+2. **Wallet** — self-custodial, via ethers.js v6. Encrypted keystore stored to `.wallet` with a password. Connects to Base (an L2 on Ethereum) via a configurable RPC URL.
+3. **ERC-721 contract** — a standalone Solidity contract compiled by `solc` at runtime. No OpenZeppelin dependency — the contract is self-contained. Compiled once and cached to `memory/contract-compiled.json`; the ABI and bytecode are reused for every subsequent operation.
+4. **Deploy** — the contract is deployed once on first use. The address is saved to `memory/contract.json` and reused for every subsequent mint, avoiding repeated deployment costs.
+5. **Mint** — each image mints a new token with the IPFS metadata URI.
+6. **Seaport listing** — an EIP-712 signed Seaport v1.5 order submitted to the OpenSea API.
+
+A gas preflight check runs before any on-chain transaction — if the wallet balance is too low to cover estimated gas, the listing aborts before spending anything.
 
 # What's not done yet
 
@@ -122,6 +165,32 @@ The listing flow exists but isn't wired to the menu. The code is there — IPFS 
 The wallet is ready but inert. Self-custodial ETH wallet via ethers.js — initialise, check balance, sign transactions, preflight gas checks before attempting any on-chain transaction. Not wired to anything the user can trigger.
 
 So right now, Sketchy generates art and critiques it. The selling half is built but dark.
+
+# What would change at scale
+
+Sketchy is a single-user CLI. If it were a multi-user service, the gaps become obvious quickly.
+
+**State** — The `memory/` directory — JSONL files, JSON blobs — is a prototype pattern. At scale this becomes a proper state store: a database for cost records, a blob store for generated images, a job queue for the generation loop.
+
+**Cost tracking** — The current setup attributes cost at the call level, which is good. But in a multi-user context, you'd need per-user budgets, rate limiting, and a way to surface aggregate costs without exposing individual usage.
+
+**Provider reliability** — There's no fallback if Grok is unavailable. The generation step fails. At scale you'd want at least one alternative image provider and automatic retry logic.
+
+**The listing flow** — The current design involves a manual confirmation step before any on-chain transaction. At scale, that confirmation step needs formal approval gates — human-in-the-loop review before any wallet interaction — and a complete audit trail of what was approved and when.
+
+# If you were building this
+
+The patterns that transfer:
+
+**Define agent interfaces before agent implementations.** The orchestrator in Sketchy only knows input and output types for each agent — it doesn't know how any of them work. This means you can swap, mock, or test any agent independently. It also means the pipeline design is visible at the orchestrator level without reading individual agent code.
+
+**Extended thinking earns its cost on genuinely hard creative problems.** It doesn't help with classification or simple extraction — those are cheap calls anyway. It helps when the model needs to reason about tradeoffs before committing: market positioning, avoiding known failure modes, combining constraints that pull in different directions. If you're considering extended thinking, ask whether additional reasoning time would help a human with the same task. If yes, it'll probably help Claude too.
+
+**Use async generators for observable pipelines.** Each agent yields progress as it goes. The caller gets a live stream of what's happening without polling or callbacks. Any language with generators or coroutines can implement this pattern, and it makes multi-step AI pipelines significantly easier to debug and monitor.
+
+**Encode your domain knowledge about failure modes as shared constraints.** The cliché blacklist in Sketchy lives in both the Art Director (avoid these) and the Critic (penalise these). This is more reliable than a one-sided instruction — the generator knows what the evaluator will reject, and the evaluator enforces it consistently. Apply the same pattern to any generative task where you have accumulated knowledge about what bad output looks like: put it in both places and let them create a feedback loop.
+
+**Track best-of-N, not last-of-N.** The refinement loop should always carry the best result across iterations. This is a few lines of state in the orchestrator and it meaningfully improves what the system produces — especially when iteration introduces noise rather than consistent improvement.
 
 # The part that keeps me interested
 
