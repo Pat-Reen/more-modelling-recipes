@@ -2221,15 +2221,37 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     }
   }
 
-  @media screen and (max-width: 768px){
+  @media screen and (max-width: 768px) {
+    /* Smaller logo on mobile */
+    .distill-site-header .logo img {
+      width: 60px;
+      height: 60px;
+      max-height: 60px;
+      padding: 5px 5px 5px 0;
+    }
+
+    /* Hide site title text — logo identifies the site */
+    .distill-site-header .title {
+      display: none !important;
+    }
+
+    /* Hide hamburger toggle — icons are always visible */
+    .distill-site-header a.nav-toggle,
+    .distill-site-header .nav-toggle {
+      display: none !important;
+    }
+
+    /* Always show the three nav icons, overriding Distill's mobile collapse */
+    .distill-site-header .nav-right a {
+      display: inline-block !important;
+      padding: 18px 10px !important;
+      float: none !important;
+    }
+
+    /* Keep header compact and non-expanding */
     .distill-site-header.responsive {
-        min-height: 100px;
-    }
-    .nav-right a {
-        padding: 10px
-    }
-    .nav-right a.nav-toggle {
-        padding: 45px 10px 10px 10px;
+      min-height: 70px !important;
+      position: static !important;
     }
   }
 
