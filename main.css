@@ -72,10 +72,16 @@ d-byline {
     float: none !important;
   }
 
+  /* Prevent overflow: hidden from clipping the nav icons */
+  .distill-site-header {
+    overflow: visible !important;
+  }
+
   /* Keep header compact and non-expanding */
   .distill-site-header.responsive {
     min-height: 70px !important;
     position: static !important;
+    overflow: visible !important;
   }
 }
 
