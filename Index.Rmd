@@ -39,7 +39,7 @@ meta() %>%
   ) %>% 
   meta_social(
     url = "https://pat-reen.github.io/more-modelling-recipes/",
-    image = "img/image.png",
+    image = "https://pat-reen.github.io/more-modelling-recipes/img/image.png",
     og_type = "website",
     og_author = "Pat Reen",
   )
