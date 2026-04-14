@@ -13,7 +13,7 @@ categories:
   - statistics
   - price elasticity
 theme: main.css 
-preview: img/prev_topic.png
+preview: img/prev_elas.png
 date: 2023-06-20
 draft: false
 output:
@@ -71,19 +71,11 @@ library(reticulate)
 # py_config() # to check configuration
 
 # activate environment
-use_condaenv("r-reticulate", required=TRUE) # set environment before running any Python chunks
+# use system Python (no conda required)
+use_python(Sys.which("python"), required = TRUE)
 
-# if not already installed, install the below. if env specified, can drop envname parameter
-
-# py_install("pandas",envname = "r-reticulate")
-# py_install("numpy",envname = "r-reticulate")
-# py_install("scipy",envname = "r-reticulate")
-# py_install("matplotlib",envname = "r-reticulate")
-# py_install("seaborn",envname = "r-reticulate")
-# py_install("scikit-learn",envname = "r-reticulate")
-# py_install("linearmodels",envname = "r-reticulate")
-# py_install("tabulate",envname = "r-reticulate")
-# py_install("rpy2",envname = "r-reticulate")
+# if packages are not already installed, run once in a terminal:
+# pip install pandas numpy scipy matplotlib seaborn scikit-learn linearmodels tabulate rpy2
  
 
 # ...etc
@@ -152,7 +144,7 @@ def adjust_recommendations(row):
 ```{python Data, message=TRUE, warning=TRUE, code_folding=TRUE}
 
 # Define date range
-date_range = pd.date_range(start='2019-01-01', end='2024-06-30', freq='M', normalize=True)
+date_range = pd.date_range(start='2019-01-01', end='2024-06-30', freq='ME', normalize=True)
 
 # Define age groups, occupations and products
 age_groups = ['20-35', '36-45', '46+']
@@ -662,7 +654,7 @@ for feature in feature_names:
 
 print(elasticities)
 
-````
+```
 
 Looking at a range of price change sensitivities:
 

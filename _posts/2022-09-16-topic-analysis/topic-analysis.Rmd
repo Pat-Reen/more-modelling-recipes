@@ -77,17 +77,12 @@ knit_hooks$set(output = function(x, options) {
 # calling python from r
 library(reticulate) 
 
-# create environment if does not exist
-# conda_create("r-reticulate") 
-# py_config() # to check configuration
+# use system Python (no conda required)
+use_python(Sys.which("python"), required = TRUE)
 
-# activate environment
-use_condaenv("r-reticulate", required=TRUE) # set environment before running any Python chunks
+# if packages are not already installed, run once in a terminal:
+# pip install wordcloud
 
-# if not already installed, install the below. if env specified, can drop envname parameter
-
-# py_install("pandas",envname = "r-reticulate")
-# py_install("numpy",envname = "r-reticulate")
 # ...etc
 
 ```
@@ -283,6 +278,8 @@ import re
 # Stopwords
 import nltk
 nltk.download('stopwords')
+nltk.download('punkt_tab')
+nltk.download('wordnet')
 from nltk.corpus import stopwords
 stop_words = stopwords.words('english')
 stop_words.append('a')

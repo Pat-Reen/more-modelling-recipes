@@ -1,6 +1,6 @@
 # More Modelling Recipes
 
-A collection of practical, reproducible data science and actuarial modelling recipes — working code examples covering statistical modelling, visualisation, and data transformation techniques.
+A collection of data science and actuarial modelling recipes. Simpler posts include reproducible code examples, more complex posts discuss architecture and design.
 
 Live site: https://pat-reen.github.io/more-modelling-recipes/
 

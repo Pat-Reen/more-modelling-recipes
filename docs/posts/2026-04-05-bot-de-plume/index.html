@@ -2241,15 +2241,62 @@ d-byline {
   }
 }
 
-@media screen and (max-width: 768px){
+@media screen and (max-width: 768px) {
+  /* Smaller logo */
+  .distill-site-header .logo img {
+    width: 60px;
+    height: 60px;
+    max-height: 60px;
+    padding: 5px 5px 5px 0;
+  }
+
+  /* Use flexbox on the full nav bar to vertically center everything */
+  nav.distill-site-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    overflow: visible !important;
+    min-height: 70px !important;
+  }
+
+  /* Left side: logo + title */
+  .distill-site-header .nav-left {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 !important;
+    overflow: visible !important;
+  }
+
+  /* Right side: icon links */
+  .distill-site-header .nav-right {
+    display: flex !important;
+    align-items: center !important;
+    float: none !important;
+  }
+
+  /* Hide title — logo identifies the site */
+  .distill-site-header .title {
+    display: none !important;
+  }
+
+  /* Show the three icon links; reset padding from the desktop rule */
+  .distill-site-header .nav-right a {
+    display: inline-flex !important;
+    align-items: center !important;
+    float: none !important;
+    padding: 10px !important;
+  }
+
+  /* Hide hamburger — more specific selector wins over the rule above */
+  .distill-site-header .nav-right a.nav-toggle {
+    display: none !important;
+  }
+
+  /* Keep header compact when .responsive class is added by Distill JS */
   .distill-site-header.responsive {
-      min-height: 100px;
-  }
-  .nav-right a {
-      padding: 10px
-  }
-  .nav-right a.nav-toggle {
-      padding: 45px 10px 10px 10px;
+    min-height: 70px !important;
+    position: static !important;
+    overflow: visible !important;
   }
 }
 

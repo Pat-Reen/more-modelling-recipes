@@ -561,7 +561,7 @@ summary(step_model_glm_usage)
 For simplicity, we'll assume a model defined by MaxTemp and MinTemp only, noting the significant correlation with other explanatory variables.
 
 ```{r Usage final regression - gamma}
-gamma_model_glm_usage <- glm(Usage ~ MaxTemp + MinTemp, family = Gamma(link="inverse"), data = df_usage_train)
+gamma_model_glm_usage <- glm(Usage ~ MaxTemp + MinTemp, family = stats::Gamma(link="inverse"), data = df_usage_train)
 summary(gamma_model_glm_usage)
 ```
 

@@ -426,7 +426,7 @@ xgb1 <- xgb.train(params = params, data = DM_train, nrounds = 100, watchlist = l
                    ,early_stopping_rounds = 50
                    ,maximize = F, eval_metric = "logloss")
 
-summary(xgb1)
+xgb.importance(model = xgb1)
 xgb_pred1 <- predict (xgb1, DM_test)
 
 confusionMatrix(as.factor(as.numeric(xgb_pred1 >0.5)), as.factor(test_label))

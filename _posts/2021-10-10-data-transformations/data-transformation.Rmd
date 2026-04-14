@@ -510,7 +510,7 @@ theme_pander() + scale_color_gdocs()
 ### 3D visualisations with plotly
 ggplot does not cater to 3D visualisations, but this can be done through plotly simply. 
 
-```{r Visualisation methods - 3D, warning = FALSE, message=FALSE}
+```{r Visualisation methods - 3D, warning = FALSE, message=FALSE, eval=FALSE}
 
 plot_base <- plot_ly(data=df_sample, z= ~sum_assured, x= ~age, y=~policy_year, opacity=0.6) %>%
 add_markers(color = ~occ_group,colors= c("blue", "red"), marker=list(size=2)) 
@@ -521,7 +521,7 @@ plot_base
 
 We can add a modeled outcome to the 3D chart. For detail on the model fit, see later sections. 
 
-```{r Visualisation methods - 3D plane, warning = FALSE, message=FALSE}
+```{r Visualisation methods - 3D plane, warning = FALSE, message=FALSE, eval=FALSE}
 
 # to add a plane we need to define the points on the plane. To do that, we first create a grid of x and y values, where x and y are defined as earlier.
 x_grid <- seq(from = min(df_sample$age), to = max(df_sample$age), length = 50)
@@ -647,3 +647,4 @@ labs(x="Age", y="sick rate", title = "Sickness rate by age, occupation") +
 theme_pander() + scale_color_gdocs() +
 facet_wrap(~sex, ncol=2, nrow=3)
 ```
+

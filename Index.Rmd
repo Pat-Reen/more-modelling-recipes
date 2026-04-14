@@ -1,11 +1,12 @@
 ---
-title: "Modelling and visualisation"
+title: "More Modelling Recipes"
+description: "A collection of data science and actuarial modelling recipes. Simpler posts include reproducible code examples, more complex posts discuss architecture and design."
 site: distill::distill_website
 listing: 
   posts:
     - 2026-04-05-bot-de-plume
     - 2026-03-08-sketchy-bot
-    - 2026-02-15-family-
+    - 2026-02-15-family-hub
     - 2026-01-15-copilot-studio-pds-agent
     - 2025-10-25-google-ai-studio-projects
     - 2025-08-09-notebooklm-audio
@@ -24,12 +25,17 @@ listing:
     - 2021-10-10-data-transformations
 ---
 
+<div class="posts-list">
+<h1 style="font-size: 32px; font-weight: 700; margin-bottom: 0.25em;">More Modelling Recipes</h1>
+<p>A collection of data science and actuarial modelling recipes. Simpler posts include reproducible code examples, more complex posts discuss architecture and design.</p>
+</div>
+
 ```{r, include=FALSE, results='asis'}
 library(metathis)
 
 meta() %>%
   meta_general(
-    description =  "Exploring a few simple and reproducible modelling and data visualisation recipes."
+    description =  "A collection of data science and actuarial modelling recipes. Simpler posts include reproducible code examples, more complex posts discuss architecture and design."
   ) %>% 
   meta_social(
     url = "https://pat-reen.github.io/more-modelling-recipes/",
