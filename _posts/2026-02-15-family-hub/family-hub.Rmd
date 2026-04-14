@@ -194,7 +194,7 @@ The patterns that transfer:
 
 # The result
 
-Family Hub has been running on the kitchen tablet for months now. The kids use it to check the week's schedule. My partner uses the meal planner. I use the to-do list and news digest. The whiteboard is still there — but now it's a convenient input device rather than the source of truth.
+Family Hub has been running on the kitchen tablet for months now. My daughter uses it to check the week's schedule. My partner uses the meal planner. I use the to-do list and news digest. The whiteboard is still there — but now it's a convenient input device rather than the source of truth.
 
 Building it would have taken significantly longer without Claude Code. Not because AI wrote the app for me — I made all the design decisions, reviewed every change, and did a lot of the implementation myself — but because having an assistant that understands your codebase and can move quickly across the whole project genuinely accelerates development.
 
