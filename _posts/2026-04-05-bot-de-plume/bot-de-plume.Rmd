@@ -45,7 +45,7 @@ And I thought if I built one, it didn't count as procrastination.
 
 Bot de Plume is a Next.js app running entirely on the local filesystem — no database, just JSON and markdown files in a `content/` folder. That constraint turned out to be a feature. The project is portable, transparent, and version-controllable. You can open the files in any editor.
 
-[![](img/bot_de_plume_app.png){width=100%}](https://github.com/Pat-Reen/bot-de-plume)
+![](img/bot_de_plume_app.png){width=100%}
 
 The core structure mirrors how I actually think about fiction: projects → chapters → scenes, with a parallel system for characters and locations. Each scene carries its own notes, a status (not started / draft / complete), a word count, a content type (prose, dialogue, action), and a provider — Claude or Grok, switchable per scene. Locations can be pinned to an interactive map. Everything auto-saves.
 
@@ -122,7 +122,7 @@ It was a strange experience. The app worked. The novel got written. It came out 
 
 I published it.
 
-[![](img/novel_cover.png){width=60%}](https://github.com/Pat-Reen/bot-de-plume)
+![](img/novel_cover.png){width=60%}
 
 ## One sale
 

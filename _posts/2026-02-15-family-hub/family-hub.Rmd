@@ -198,4 +198,4 @@ Family Hub has been running on the kitchen tablet for months now. The kids use i
 
 Building it would have taken significantly longer without Claude Code. Not because AI wrote the app for me — I made all the design decisions, reviewed every change, and did a lot of the implementation myself — but because having an assistant that understands your codebase and can move quickly across the whole project genuinely accelerates development.
 
-[![](img/family_hub.png){width=100%}](https://github.com/Pat-Reen/productivity-bot)
+![](img/family_hub.png){width=100%}

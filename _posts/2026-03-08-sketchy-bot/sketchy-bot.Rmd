@@ -82,7 +82,7 @@ The result is Sketchy — or Sketch Bot. Here's what it does:
 
 The pipeline tracks the best-scoring image across all iterations, not just the last one. So if attempt 2 scores 7.8 and attempt 3 regresses to 6.1, the bot saves attempt 2 and tells you exactly what happened.
 
-[![](img/sketchy_pipeline.png){width=100%}](https://github.com/Pat-Reen/sketchy-bot)
+![](img/sketchy_pipeline.png){width=100%}
 
 ## Extended thinking for the Art Director
 
