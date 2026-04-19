@@ -35,7 +35,7 @@ library(metathis)
 
 meta() %>%
   meta_general(
-    description =  "A collection of data science and actuarial modelling recipes. Simpler posts include reproducible code examples, more complex posts discuss architecture and design."
+    description =  "A collection of data science and modelling recipes. Simpler posts include reproducible code examples, more complex posts discuss architecture and design."
   ) %>% 
   meta_social(
     url = "https://pat-reen.github.io/more-modelling-recipes/",
