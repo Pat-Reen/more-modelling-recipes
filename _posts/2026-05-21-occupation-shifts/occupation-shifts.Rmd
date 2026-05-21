@@ -35,8 +35,8 @@ that of all the occupations in the 1950 US census, only one (elevator
 operator) had fully disappeared by the 2010s. He uses it to make a
 narrow historical point: automation usually chips away at *tasks* and
 reshapes the occupation around what's left, rather than wiping the
-occupation out. It's a foil for his larger argument that AI may now
-break that pattern by reaching non-routine cognitive work.
+occupation out. It seems to set up an argument that this pattern may
+not hold for what's coming next.
 
 I wanted to see what the same exercise looks like in Australian data
 60 years on.

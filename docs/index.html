@@ -2214,6 +2214,13 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       position:relative; top:80px
   }
 
+  /* Hide the thin horizontal rules distill injects between the
+     title/description, the byline (author/published), and the main
+     article body. */
+  hr.section-separator {
+      display: none;
+  }
+
   @media screen and (min-width: 320px) and (max-width: 1024px){
     .distill-site-header .logo img {
         display: inline-block;

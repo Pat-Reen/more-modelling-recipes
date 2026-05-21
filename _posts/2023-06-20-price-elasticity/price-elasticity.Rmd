@@ -266,7 +266,14 @@ df.head()
 # Convert python df to r for plotting
 df <- py$df
 
-# Convert the date 
+# pandas (2.x with pyarrow) returns string columns as ArrowStringArray,
+# which reticulate doesn't auto-convert to R character; force them here
+df$age_group        <- as.character(df$age_group)
+df$occupation       <- as.character(df$occupation)
+df$product          <- as.character(df$product)
+df$change_direction <- as.character(df$change_direction)
+
+# Convert the date
 df$date <- as.Date(sapply(df$date, as.character))
 
 # Plot
