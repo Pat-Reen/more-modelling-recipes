@@ -1,0 +1,29 @@
+occupation_1966,count_1966,pdf_page,share_1966_pct,anzsco_2026,count_2026,share_2026_pct,share_ratio_2026_to_1966,theme
+Telegraphists,1098,99,0.0226,none,0,0.0,0.0,disappeared
+Teleprinter operators,965,99,0.0199,none,0,0.0,0.0,disappeared
+"Telephonists, phonogram operators",23545,99,0.4848,5616,2600,0.018,0.037,shrunk
+Stenographers and typists,162806,92,3.3524,532113,4800,0.0332,0.01,shrunk
+Office machine operators,39493,92,0.8132,none,0,0.0,0.0,absorbed
+Receptionists,14973,92,0.3083,5421,181300,1.2535,4.066,grown
+Tailors and dressmakers,10922,100,0.2249,393213,5200,0.036,0.16,shrunk
+Milliners and hat makers,1753,100,0.0361,none,0,0.0,0.0,disappeared
+Bookbinders,7307,106,0.1505,none,0,0.0,0.0,shrunk
+Compositors and typesetters,9296,106,0.1914,none,0,0.0,0.0,disappeared
+"Blacksmiths, hammersmiths and forgemen",3361,101,0.0692,322111,240,0.0017,0.024,shrunk
+Boot and shoe factory operatives,16602,101,0.3419,393114,720,0.005,0.015,shrunk
+"Tanners, fellmongers and related",2931,108,0.0604,none,0,0.0,0.0,shrunk
+Whalers,36,95,0.0007,none,0,0.0,0.0,disappeared
+"Pearlers, pearl divers, pearl shellers",395,95,0.0081,none,0,0.0,0.0,disappeared
+Shearers,6806,95,0.1401,3612,2700,0.0187,0.133,shrunk
+Wool classers,2406,95,0.0495,399917,460,0.0032,0.064,shrunk
+"Firemen, railway (steam)",5508,98,0.1134,none,0,0.0,0.0,disappeared
+"Postmen, postal assistants, telegram deliverymen",21882,99,0.4506,561212;561412,21800,0.1507,0.335,shrunk
+"Domestic workers, private households",27310,111,0.5623,811412,4400,0.0304,0.054,shrunk
+Service station attendants,10265,93,0.2114,6216,13300,0.092,0.435,stable
+"Maids, hotel, hospital",31683,111,0.6524,811411,24900,0.1722,0.264,shrunk
+Cooks and chefs,22487,111,0.463,3513;3514,164100,1.1346,2.45,grown
+"Accountants, auditors",18362,90,0.3781,2211;2212,248600,1.7188,4.546,grown
+"Economists, actuaries and statisticians",1608,90,0.0331,2241;2243,17200,0.1189,3.592,grown
+Computer programmers,2561,90,0.0527,2613,203200,1.4049,26.642,grown
+Medical practitioners,13697,88,0.282,2531;2532;2533;2534;2535;2539,159500,1.1028,3.91,grown
+Pharmacists,8374,88,0.1724,2515,46300,0.3201,1.857,grown

@@ -1,0 +1,340 @@
+---
+title: "Telegraphists, typists and the elevator-operator question"
+description: |
+  In chapter 2 of A World Without Work, Daniel Susskind cites a
+  striking statistic: of the 270-odd occupations in the 1950 US
+  census, only one (elevator operator) had fully disappeared by the
+  2010s. I tested the claim against Australian data, comparing the
+  1966 ABS census occupation tables to Jobs and Skills Australia's Feb
+  2026 ANZSCO employment numbers.
+author:
+  - name: Pat Reen
+    url: https://www.linkedin.com/in/patrick-reen/
+categories:
+  - data
+  - python
+  - pdf-extraction
+  - census
+  - labour-market
+  - automation
+theme: main.css
+preview: img/prev_occupation_shifts.png
+date: 2026-05-21
+draft: false
+output:
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    self_contained: true
+---
+
+# Background
+
+In *A World Without Work* (Allen Lane, 2020), Daniel Susskind notes that
+of the 270 occupations in the 1950 US census, only one (elevator
+operator) had fully disappeared by the 2010s. He uses it to make a
+narrow historical point: automation usually chips away at *tasks* and
+reshapes occupations rather than deleting them. It's a foil for his
+larger argument that AI may now break that pattern by reaching
+non-routine cognitive work.
+
+I wanted to see what the same exercise looks like in Australian data
+60 years on.
+
+# What I found
+
+Three things stood out:
+
+1. **Nine 1966 occupations have no current equivalent in the
+   classification.** More than Susskind's one, but mostly an artefact of
+   finer taxonomy granularity rather than a counter-example. Causes vary
+   (automation, fashion, regulation, offshoring).
+2. **The bigger story is share-of-work decay, not extinction.**
+   Stenographers and typists were 3.35% of the 1966 workforce. Today's
+   ANZSCO "Typists" code reports 4,800 people, 0.03%. The role wasn't
+   automated away. Typing was distributed into every white-collar job.
+3. **New work absorbed the shift.** Computer programmers went from
+   2,561 (0.05%) in 1966 to 203,200 (1.40%) today, a 27× share-growth,
+   the biggest in the comparison.
+
+![](img/chart_ratio.png){width=100%}
+*Ratio of each occupation's 2026 workforce share to its 1966 share. Bars
+below 1× shrank as a share of work, bars above grew. Rows labelled "no
+2026 ANZSCO equivalent" have no current matching occupation in the
+classification at all (ratio undefined). Sources: ABS 1966 Census Vol. 1
+Pt. 10 Table 1, pp. 88-112; JSA Occupation profiles Feb 2026.*
+
+The workforce grew 2.98× over the period (4,856,455 to 14,463,400),
+faster than population (11.55m to 27.2m, 2.35×), driven mostly by women
+entering paid work.
+
+# The detail
+
+## Occupations with no 2026 equivalent
+
+| 1966 occupation | 1966 persons | PDF page |
+|---|---:|---:|
+| Telegraphists | 1,098 | p.99 |
+| Teleprinter operators | 965 | p.99 |
+| Compositors and typesetters | 9,296 | p.106 |
+| Bookbinders | 7,307 | p.106 |
+| Firemen, railway (steam locomotive) | 5,508 | p.98 |
+| Milliners and hat makers | 1,753 | p.100 |
+| Tanners, fellmongers and related | 2,931 | p.108 |
+| Whalers | 36 | p.95 |
+| Pearlers, pearl divers, pearl shellers | 395 | p.95 |
+
+Telegraphists, teleprinter operators, compositors and railway firemen
+fit Susskind's automation thesis cleanly. The others don't: milliners
+went because people stopped wearing hats, whalers and pearlers via
+regulation and resource collapse, tanners largely moved offshore.
+
+## Occupations that shrank as a share of work
+
+| 1966 occupation | 1966 share | 2026 share | Ratio |
+|---|---:|---:|---:|
+| Stenographers and typists | 3.35% | 0.03% | 0.01× |
+| Office machine operators | 0.81% | ~0% | ~0× |
+| Telephonists, phonogram operators | 0.48% | 0.02% | 0.04× |
+| Domestic workers, private households | 0.56% | 0.03% | 0.05× |
+| Boot and shoe factory operatives | 0.34% | 0.01% | 0.01× |
+| Blacksmiths, hammersmiths and forgemen | 0.07% | 0.002% | 0.02× |
+| Shearers | 0.14% | 0.02% | 0.13× |
+| Postmen, postal staff, telegram deliverymen | 0.45% | 0.15% | 0.34× |
+
+The Susskind pattern in its clearest form. None of these disappeared.
+All shrank by 90%+ as a share of work, as tasks were absorbed into
+other roles or replaced by self-service tech.
+
+## Occupations that grew
+
+| 1966 occupation | 1966 share | 2026 share | Ratio |
+|---|---:|---:|---:|
+| Computer programmers | 0.05% | 1.40% | 26.6× |
+| Accountants, auditors | 0.38% | 1.72% | 4.6× |
+| Receptionists | 0.31% | 1.25% | 4.1× |
+| Medical practitioners | 0.28% | 1.05% | 3.7× |
+| Cooks and chefs | 0.46% | 1.13% | 2.4× |
+| Pharmacists | 0.17% | 0.32% | 1.9× |
+
+A 1966 programmer worked on mainframes with punched cards; a 2026
+programmer ships cloud microservices with AI coding assistants. Same
+code, different job. Susskind's task-not-role framing cuts both ways:
+even a persistent role is a different task bundle 60 years on.
+
+# Broader workforce composition
+
+The 28 occupations above were picked to illustrate the Susskind
+argument. They over-represent the dramatic shifts. The full
+composition picture is broader:
+
+| Bucket (1966 majors → 2026 ANZSCO majors) | 1966 share | 2026 share |
+|---|---:|---:|
+| Professionals + Managers (Groups 0,1 → ANZSCO 1,2) | 15.6% | 39.5% |
+| Clerical + Sales (Groups 2,3 → ANZSCO 5,6) | 22.4% | 20.5% |
+| Service workers (Group 9 → ANZSCO 4) | 7.4% | 12.1% |
+| Trades, machinery, labourers (Groups 5,6,7/8 → ANZSCO 3,7,8) | 42.2% | 27.9% |
+| Farmers and primary industry (Group 4 → ANZSCO 12+84) | 9.7% | 1.7% |
+
+Sources: 1966 majors from the "Total" rows on pp.90, 92, 93, 94, 97, 99,
+110, 112; 2026 sums computed across 4-digit Unit Groups in the JSA xlsx.
+
+Farmers and primary industry fell from nearly 10% of work to under 2%,
+a much larger share-shift than anything in the hand-picked list above,
+mostly driven by mechanisation. Professionals and managers more than
+doubled their share. Clerical and sales stayed remarkably stable as
+total shares, even as their internal composition changed completely
+(stenographers out, software developers in).
+
+# A note on like-for-like
+
+Both numbers are headcounts, not FTEs. The 1966 PDF is silent on hours;
+the 2026 JSA file is also a headcount but exposes part-time share per
+row. Part-time work was small in 1966 and is around 31% today,
+well over 50% for Typists, Receptionists and Cooks. So on an FTE basis,
+part-time-heavy growers grew less than the headcount ratio suggests,
+and part-time-heavy shrinkers shrank harder. The qualitative picture
+doesn't change.
+
+# Validating these numbers yourself
+
+Every number in this post can be checked against source in under a
+minute.
+
+**1966 occupation count.** Open [ABS 1966 Census Vol. 1 Pt. 10
+Occupation](https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/2106.01966?OpenDocument).
+Go to the PDF page in the table's `PDF page` column. Find the
+occupation name in Table 1. Read the **P (Persons)** row, **rightmost
+column** (Australia). That's the count.
+
+**2026 occupation count.** Open
+`Occupation profiles data - February 2026.xlsx` from [Jobs and Skills
+Australia](https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations).
+Go to sheet `Table_1`. Find the ANZSCO code in column A. Read column C
+("Employed").
+
+**1966 workforce denominator (4,856,455).** PDF p.112, "Total in the
+work force" row, P, rightmost column.
+
+**2026 workforce denominator (14,463,400).** JSA xlsx, `Table_1`, sum
+the 4-digit ANZSCO Unit Group rows only: `=SUM(C8:C365)`. Do not include
+rows 366-1243 (those are 6-digit subdivisions of the rows above and
+would double-count).
+
+**1966 major-group totals.** Each appears as a "Total \<group name\>"
+row at the end of its section: p.90 (Professional), p.92
+(Administrative), p.93 (Clerical, Sales), p.94 (Farmers), p.97 (Miners),
+p.99 (Transport), p.110 (Craftsmen/labourers), p.112 (Service, Armed
+services, Inadequately described, Total).
+
+# References
+
+1. Daniel Susskind, *A World Without Work*, Allen Lane / Penguin, 2020.
+   Part 1, Chapter 2.
+2. Carl Benedikt Frey and Michael A. Osborne, *The Future of
+   Employment: How Susceptible are Jobs to Computerisation?*, Oxford
+   Martin Programme on Technology and Employment, 2013 (published in
+   *Technological Forecasting and Social Change* vol. 114, 2017). The
+   standard reference cited by Susskind and others for occupation-level
+   automatability.
+   <https://www.oxfordmartin.ox.ac.uk/downloads/academic/The_Future_of_Employment.pdf>
+3. ABS, *Census of Population and Housing, 30 June 1966, Volume 1 Part
+   10: Occupation*, Cat. no. 2106.0.
+   <https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/2106.01966?OpenDocument>
+4. Jobs and Skills Australia, *Occupation profiles* (Feb 2026).
+   <https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations>
+5. ABS, *Snapshot of Australia: 2021 Census* (cross-check: 12,049,410
+   employed at Aug 2021, consistent with JSA's 14.46m at Feb 2026).
+   <https://www.abs.gov.au/statistics/people/people-and-communities/snapshot-australia/2021>
+6. ANZSCO 2022 revision, ABS cat. no. 1220.0.
+
+# Appendix: extraction and analysis code
+
+The 1966 ABS publication is a 121-page scanned, OCR'd PDF. None of the
+table structure metadata survives, so `pymupdf`'s `find_tables()`
+returns nothing:
+
+```python
+import fitz
+doc = fitz.open("1966 Census ... Part 10 Occupation.pdf")
+tabs = doc[87].find_tables()   # first page of Total Australia
+print(len(tabs.tables))        # 0
+```
+
+The workaround is to pull text spans with their bounding boxes and
+reconstruct rows and columns from X/Y geometry. Each occupation block
+has the same shape: an occupation name, then rows labelled M, F, P,
+each with eight states-and-territories columns and an "Australia" total
+on the right.
+
+```python
+raw = page.get_text("dict")
+spans = []
+for blk in raw["blocks"]:
+    if blk.get("type") != 0:       # 0 = text block; skip images
+        continue
+    for line in blk["lines"]:
+        for s in line["spans"]:
+            text = s["text"].strip()
+            if not text:
+                continue
+            x0, y0, x1, y1 = s["bbox"]
+            spans.append((round(y0, 1), round(x0, 1), text))
+```
+
+OCR quirks: "4,715" comes through as "4,7L5" (Tailors, p.100), lowercase
+`p` mixes with uppercase `P` for the persons row, bullet glyphs become
+U+FFFD. I verified each of the 28 numbers by hand against its cited PDF
+page. The full extraction and chart-rendering script is
+[`analysis.py`](analysis.py) in the same folder.
+
+**Workforce denominator from the 1966 PDF.** Page 112 has the "Total
+in the work force" row at the bottom of Table 1. Pull the rightmost
+number on the P line:
+
+```python
+import fitz, re
+
+def extract_1966_workforce_total(pdf_path):
+    doc = fitz.open(pdf_path)
+    text = doc[111].get_text()         # page 112 (zero-indexed)
+    doc.close()
+    m = re.search(
+        r"Total in the work force.*?P\s+"
+        r"[\d,]+\s+[\d,]+\s+[\d,]+\s+[\d,]+\s+"
+        r"[\d,]+\s+[\d,]+\s+[\d,]+\s+([\d,]+\s*[\d,]+)",
+        text, re.DOTALL,
+    )
+    tokens = m.group(1).strip().split()
+    return int(tokens[-1].replace(",", ""))   # 4,856,455
+```
+
+**Hand-picked occupations and ANZSCO crosswalk.** A representative
+sample of the 28 rows. Full list is in `analysis.py`.
+
+```python
+OCCUPATIONS_1966 = [
+    # (name, count, pdf_page, theme)
+    ("Telegraphists",                 1098,  99, "disappeared"),
+    ("Stenographers and typists",   162806,  92, "shrunk"),
+    ("Office machine operators",     39493,  92, "absorbed"),
+    ("Receptionists",                14973,  92, "grown"),
+    ("Compositors and typesetters",   9296, 106, "disappeared"),
+    ("Whalers",                         36,  95, "disappeared"),
+    ("Computer programmers",          2561,  90, "grown"),
+    # ... (full 28-row list in analysis.py)
+]
+
+CROSSWALK_2026 = {
+    "Telegraphists":                [],            # no equivalent
+    "Stenographers and typists":    [532113],      # Typists
+    "Office machine operators":     [],            # absorbed into clerical
+    "Receptionists":                [5421],
+    "Compositors and typesetters":  [],            # no equivalent
+    "Whalers":                      [],            # no equivalent
+    "Computer programmers":         [2613],        # Software/Apps Programmers
+    # ... (full 28-row mapping in analysis.py)
+}
+```
+
+**2026 ANZSCO data and workforce sum.** Load the JSA xlsx, sum only the
+4-digit Unit Groups (the 6-digit codes are subdivisions of those):
+
+```python
+import openpyxl
+
+def load_2026_employed(xlsx_path):
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+    ws = wb["Table_1"]
+    out = {}
+    for i, row in enumerate(ws.iter_rows(values_only=True)):
+        if i < 7:
+            continue
+        code, occ, emp = row[0], row[1], row[2]
+        if isinstance(code, int) and isinstance(emp, (int, float)):
+            out[code] = (str(occ), int(emp))
+    wb.close()
+    return out
+
+def workforce_total_2026(emp):
+    return sum(v[1] for k, v in emp.items() if len(str(k)) == 4)
+```
+
+**Share-of-workforce computation.**
+
+```python
+wf_1966 = extract_1966_workforce_total(PDF_1966)
+emp_2026 = load_2026_employed(XLSX_2026)
+wf_2026 = workforce_total_2026(emp_2026)
+
+for name, count_1966, page, theme in OCCUPATIONS_1966:
+    codes = CROSSWALK_2026[name]
+    count_2026 = sum(emp_2026[c][1] for c in codes if c in emp_2026)
+    share_1966 = count_1966 / wf_1966
+    share_2026 = (count_2026 / wf_2026) if count_2026 else 0.0
+    ratio = (share_2026 / share_1966) if share_1966 else 0.0
+    # write CSV row
+```
+
+The matplotlib code that renders the two charts is in `analysis.py`
+(standard `barh` and `scatter` calls).

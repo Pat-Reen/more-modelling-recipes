@@ -1,0 +1,5 @@
+1966 Total in work force (Persons, Australia): 4,856,455
+  Source: ABS Census 1966, Vol. 1 Part 10 Occupation, Table 1, p.112.
+
+2026 Total employed (sum of 4-digit ANZSCO Unit Groups, Feb 2026): 14,463,400
+  Source: Jobs and Skills Australia, Occupation profiles data Feb 2026, Table_1.
