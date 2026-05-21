@@ -34,9 +34,9 @@ In *A World Without Work* (Allen Lane, 2020), Daniel Susskind notes that
 of the 270 occupations in the 1950 US census, only one (elevator
 operator) had fully disappeared by the 2010s. He uses it to make a
 narrow historical point: automation usually chips away at *tasks* and
-reshapes occupations rather than deleting them. It's a foil for his
-larger argument that AI may now break that pattern by reaching
-non-routine cognitive work.
+reshapes the occupation around what's left, rather than wiping the
+occupation out. It's a foil for his larger argument that AI may now
+break that pattern by reaching non-routine cognitive work.
 
 I wanted to see what the same exercise looks like in Australian data
 60 years on.
@@ -46,9 +46,10 @@ I wanted to see what the same exercise looks like in Australian data
 Three things stood out:
 
 1. **Nine 1966 occupations have no current equivalent in the
-   classification.** More than Susskind's one, but mostly an artefact of
-   finer taxonomy granularity rather than a counter-example. Causes vary
-   (automation, fashion, regulation, offshoring).
+   classification.** More than Susskind's one, but mostly because the
+   1966 Australian classification is more fine-grained than the US
+   1950 one he references. Causes vary too: automation, fashion,
+   regulation, offshoring.
 2. **The bigger story is share-of-work decay, not extinction.**
    Stenographers and typists were 3.35% of the 1966 workforce. Today's
    ANZSCO "Typists" code reports 4,800 people, 0.03%. The role wasn't
@@ -72,22 +73,26 @@ entering paid work.
 
 ## Occupations with no 2026 equivalent
 
-| 1966 occupation | 1966 persons | PDF page |
+| 1966 occupation | 1966 persons | 1966 share |
 |---|---:|---:|
-| Telegraphists | 1,098 | p.99 |
-| Teleprinter operators | 965 | p.99 |
-| Compositors and typesetters | 9,296 | p.106 |
-| Bookbinders | 7,307 | p.106 |
-| Firemen, railway (steam locomotive) | 5,508 | p.98 |
-| Milliners and hat makers | 1,753 | p.100 |
-| Tanners, fellmongers and related | 2,931 | p.108 |
-| Whalers | 36 | p.95 |
-| Pearlers, pearl divers, pearl shellers | 395 | p.95 |
+| Compositors and typesetters | 9,296 | 0.191% |
+| Bookbinders | 7,307 | 0.150% |
+| Firemen, railway (steam locomotive) | 5,508 | 0.113% |
+| Tanners, fellmongers and related | 2,931 | 0.060% |
+| Milliners and hat makers | 1,753 | 0.036% |
+| Telegraphists | 1,098 | 0.023% |
+| Teleprinter operators | 965 | 0.020% |
+| Pearlers, pearl divers, pearl shellers | 395 | 0.008% |
+| Whalers | 36 | 0.001% |
 
 Telegraphists, teleprinter operators, compositors and railway firemen
 fit Susskind's automation thesis cleanly. The others don't: milliners
 went because people stopped wearing hats, whalers and pearlers via
 regulation and resource collapse, tanners largely moved offshore.
+Whalers and pearlers were also already down to tiny numbers by 1966
+(36 and 395 respectively), so calling them "disappeared" by 2026 is
+really an old industry decline catching up with the classification,
+not an automation story.
 
 ## Occupations that shrank as a share of work
 
@@ -98,6 +103,7 @@ regulation and resource collapse, tanners largely moved offshore.
 | Telephonists, phonogram operators | 0.48% | 0.02% | 0.04× |
 | Domestic workers, private households | 0.56% | 0.03% | 0.05× |
 | Boot and shoe factory operatives | 0.34% | 0.01% | 0.01× |
+| Tailors and dressmakers | 0.22% | 0.04% | 0.16× |
 | Blacksmiths, hammersmiths and forgemen | 0.07% | 0.002% | 0.02× |
 | Shearers | 0.14% | 0.02% | 0.13× |
 | Postmen, postal staff, telegram deliverymen | 0.45% | 0.15% | 0.34× |
@@ -113,7 +119,8 @@ other roles or replaced by self-service tech.
 | Computer programmers | 0.05% | 1.40% | 26.6× |
 | Accountants, auditors | 0.38% | 1.72% | 4.6× |
 | Receptionists | 0.31% | 1.25% | 4.1× |
-| Medical practitioners | 0.28% | 1.05% | 3.7× |
+| Medical practitioners | 0.28% | 1.10% | 3.9× |
+| Economists, actuaries and statisticians | 0.03% | 0.12% | 3.6× |
 | Cooks and chefs | 0.46% | 1.13% | 2.4× |
 | Pharmacists | 0.17% | 0.32% | 1.9× |
 
@@ -122,22 +129,43 @@ programmer ships cloud microservices with AI coding assistants. Same
 code, different job. Susskind's task-not-role framing cuts both ways:
 even a persistent role is a different task bundle 60 years on.
 
+There's a forward read in this too. Typing was 3.35% of work in 1966
+because preparing typed documents was a real specialism, with its
+own training, its own equipment, and its own career path. Personal
+computing turned typing into something everyone does, and the
+dedicated role thinned out. The natural analogy now is AI coding
+agents and software developers: if writing code follows the same
+arc as typing did, "Software and Applications Programmers" stays on
+the books with a smaller headcount, while the coding-adjacent parts
+of every other role grow. That is the Susskind pattern, applied to a
+role that wasn't in the obvious automation queue when the book was
+written.
+
 # Broader workforce composition
 
 The 28 occupations above were picked to illustrate the Susskind
 argument. They over-represent the dramatic shifts. The full
 composition picture is broader:
 
-| Bucket | 1966 share | 2026 share |
-|---|---:|---:|
-| Professionals and managers | 15.6% | 39.5% |
-| Clerical and sales | 22.4% | 20.5% |
-| Service workers | 7.4% | 12.1% |
-| Trades, machinery, labourers | 42.2% | 27.9% |
-| Farmers and primary industry | 9.7% | 1.7% |
+| Bucket | 1966 share | 2026 share | Ratio |
+|---|---:|---:|---:|
+| Professionals and managers | 15.6% | 38.4% | 2.5× |
+| Clerical and sales | 22.4% | 20.5% | 0.9× |
+| Service workers | 7.4% | 12.0% | 1.6× |
+| Trades, machinery, labourers | 42.2% | 27.2% | 0.6× |
+| Farmers and primary industry | 9.7% | 1.7% | 0.2× |
+| Defence Force | 1.2% | 0.2% | 0.2× |
+| Other (1966 only) | 1.6% | – | n/a |
+| **Total** | **100.0%** | **100.0%** | |
 
 Each row's source counts, ANZSCO codes and ratios are in
 [`composition.csv`](composition.csv) in the post folder.
+
+*Caveat on the Defence Force row*: JSA's 2026 number undercounts the
+modern ADF because the ABS Labour Force Survey excludes military
+personnel living in barracks. The Census-comparable figure is closer
+to 0.4-0.6%, so defence's share still fell, just less sharply than
+0.2× suggests.
 
 Farmers and primary industry fell from nearly 10% of work to under 2%,
 a much larger share-shift than anything in the hand-picked list above,
@@ -150,8 +178,9 @@ total shares, even as their internal composition changed completely
 
 Both numbers are headcounts, not FTEs. The 1966 PDF is silent on hours;
 the 2026 JSA file is also a headcount but exposes part-time share per
-row. Part-time work was small in 1966 and is around 31% today,
-well over 50% for Typists, Receptionists and Cooks. So on an FTE basis,
+row. Part-time work was around 10% of employment in the mid-1960s
+(ABS Labour Force Survey, cat. 6202.0) and is around 31% today, well
+over 50% for Typists, Receptionists and Cooks. So on an FTE basis,
 part-time-heavy growers grew less than the headcount ratio suggests,
 and part-time-heavy shrinkers shrank harder. The qualitative picture
 doesn't change.
@@ -175,7 +204,11 @@ doesn't change.
 5. ABS, *Snapshot of Australia: 2021 Census* (cross-check: 12,049,410
    employed at Aug 2021, consistent with JSA's 14.46m at Feb 2026).
    <https://www.abs.gov.au/statistics/people/people-and-communities/snapshot-australia/2021>
-6. ANZSCO 2022 revision, ABS cat. no. 1220.0.
+6. ABS, *Labour Force, Australia*, cat. no. 6202.0 (and historical
+   series 6203.0). Source for the part-time share figures (mid-1960s
+   ≈ 10%, current ≈ 31%).
+   <https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release>
+7. ANZSCO 2022 revision, ABS cat. no. 1220.0.
 
 # Appendix: extraction and analysis code
 

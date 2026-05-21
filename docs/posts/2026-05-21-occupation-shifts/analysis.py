@@ -173,7 +173,11 @@ CROSSWALK_2026 = {
 #
 #   "Defence Force" combines all four ANZSCO Defence Force codes (1392 +
 #   4411 + 111212 + 139111) on the 2026 side, against 1966 Group 10 (Armed
-#   Services) on the 1966 side.
+#   Services) on the 1966 side. Caveat: the JSA figure undercounts the
+#   modern ADF because the ABS Labour Force Survey (which JSA derives
+#   from) excludes permanent military personnel living in barracks. The
+#   Census-comparable figure for today's ADF is ~60,000-90,000 rather
+#   than the 30,900 here.
 #
 #   "Other (1966 only)" holds 1966 Group 11 "Occupation inadequately
 #   described or not stated". ANZSCO has no analogue because every employed
@@ -397,7 +401,7 @@ def _chart_dumbbell(rows: list[dict]) -> None:
         fontsize=7, color="#6b7280",
     )
     fig.tight_layout()
-    fig.savefig(HERE / "chart_shrunk.png", dpi=160, bbox_inches="tight")
+    fig.savefig(HERE / "img" / "chart_shrunk.png", dpi=160, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -455,7 +459,7 @@ def _chart_ratio(rows: list[dict]) -> None:
         fontsize=7, color="#6b7280",
     )
     fig.tight_layout()
-    fig.savefig(HERE / "chart_ratio.png", dpi=160, bbox_inches="tight")
+    fig.savefig(HERE / "img" / "chart_ratio.png", dpi=160, bbox_inches="tight")
     plt.close(fig)
 
 
