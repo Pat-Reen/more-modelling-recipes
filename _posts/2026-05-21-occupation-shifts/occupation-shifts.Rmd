@@ -128,16 +128,16 @@ The 28 occupations above were picked to illustrate the Susskind
 argument. They over-represent the dramatic shifts. The full
 composition picture is broader:
 
-| Bucket (1966 majors → 2026 ANZSCO majors) | 1966 share | 2026 share |
+| Bucket | 1966 share | 2026 share |
 |---|---:|---:|
-| Professionals + Managers (Groups 0,1 → ANZSCO 1,2) | 15.6% | 39.5% |
-| Clerical + Sales (Groups 2,3 → ANZSCO 5,6) | 22.4% | 20.5% |
-| Service workers (Group 9 → ANZSCO 4) | 7.4% | 12.1% |
-| Trades, machinery, labourers (Groups 5,6,7/8 → ANZSCO 3,7,8) | 42.2% | 27.9% |
-| Farmers and primary industry (Group 4 → ANZSCO 12+84) | 9.7% | 1.7% |
+| Professionals and managers | 15.6% | 39.5% |
+| Clerical and sales | 22.4% | 20.5% |
+| Service workers | 7.4% | 12.1% |
+| Trades, machinery, labourers | 42.2% | 27.9% |
+| Farmers and primary industry | 9.7% | 1.7% |
 
-Sources: 1966 majors from the "Total" rows on pp.90, 92, 93, 94, 97, 99,
-110, 112; 2026 sums computed across 4-digit Unit Groups in the JSA xlsx.
+Each row's source counts, ANZSCO codes and ratios are in
+[`composition.csv`](composition.csv) in the post folder.
 
 Farmers and primary industry fell from nearly 10% of work to under 2%,
 a much larger share-shift than anything in the hand-picked list above,
