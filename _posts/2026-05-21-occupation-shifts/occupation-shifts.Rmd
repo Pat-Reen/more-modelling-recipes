@@ -2,11 +2,11 @@
 title: "Telegraphists, typists and the elevator-operator question"
 description: |
   In chapter 2 of A World Without Work, Daniel Susskind cites a
-  striking statistic: of the 270-odd occupations in the 1950 US
-  census, only one (elevator operator) had fully disappeared by the
-  2010s. I tested the claim against Australian data, comparing the
-  1966 ABS census occupation tables to Jobs and Skills Australia's Feb
-  2026 ANZSCO employment numbers.
+  striking statistic: of all the occupations in the 1950 US census,
+  only one (elevator operator) had fully disappeared by the 2010s. I
+  tested the claim against Australian data, comparing the 1966 ABS
+  census occupation tables to Jobs and Skills Australia's Feb 2026
+  ANZSCO employment numbers.
 author:
   - name: Pat Reen
     url: https://www.linkedin.com/in/patrick-reen/
@@ -30,8 +30,8 @@ output:
 
 # Background
 
-In *A World Without Work* (Allen Lane, 2020), Daniel Susskind notes that
-of the 270 occupations in the 1950 US census, only one (elevator
+In *A World Without Work* (Allen Lane, 2020), Daniel Susskind notes
+that of all the occupations in the 1950 US census, only one (elevator
 operator) had fully disappeared by the 2010s. He uses it to make a
 narrow historical point: automation usually chips away at *tasks* and
 reshapes the occupation around what's left, rather than wiping the
