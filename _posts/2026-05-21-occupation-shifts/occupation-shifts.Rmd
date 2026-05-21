@@ -156,37 +156,6 @@ part-time-heavy growers grew less than the headcount ratio suggests,
 and part-time-heavy shrinkers shrank harder. The qualitative picture
 doesn't change.
 
-# Validating these numbers yourself
-
-Every number in this post can be checked against source in under a
-minute.
-
-**1966 occupation count.** Open [ABS 1966 Census Vol. 1 Pt. 10
-Occupation](https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/2106.01966?OpenDocument).
-Go to the PDF page in the table's `PDF page` column. Find the
-occupation name in Table 1. Read the **P (Persons)** row, **rightmost
-column** (Australia). That's the count.
-
-**2026 occupation count.** Open
-`Occupation profiles data - February 2026.xlsx` from [Jobs and Skills
-Australia](https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations).
-Go to sheet `Table_1`. Find the ANZSCO code in column A. Read column C
-("Employed").
-
-**1966 workforce denominator (4,856,455).** PDF p.112, "Total in the
-work force" row, P, rightmost column.
-
-**2026 workforce denominator (14,463,400).** JSA xlsx, `Table_1`, sum
-the 4-digit ANZSCO Unit Group rows only: `=SUM(C8:C365)`. Do not include
-rows 366-1243 (those are 6-digit subdivisions of the rows above and
-would double-count).
-
-**1966 major-group totals.** Each appears as a "Total \<group name\>"
-row at the end of its section: p.90 (Professional), p.92
-(Administrative), p.93 (Clerical, Sales), p.94 (Farmers), p.97 (Miners),
-p.99 (Transport), p.110 (Craftsmen/labourers), p.112 (Service, Armed
-services, Inadequately described, Total).
-
 # References
 
 1. Daniel Susskind, *A World Without Work*, Allen Lane / Penguin, 2020.

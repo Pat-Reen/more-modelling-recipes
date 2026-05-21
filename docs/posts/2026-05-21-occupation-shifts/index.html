@@ -3558,7 +3558,6 @@ census, only one (elevator operator) had fully disappeared by the
 </ul></li>
 <li><a href="#broader-workforce-composition" id="toc-broader-workforce-composition">Broader workforce composition</a></li>
 <li><a href="#a-note-on-like-for-like" id="toc-a-note-on-like-for-like">A note on like-for-like</a></li>
-<li><a href="#validating-these-numbers-yourself" id="toc-validating-these-numbers-yourself">Validating these numbers yourself</a></li>
 <li><a href="#references" id="toc-references">References</a></li>
 <li><a href="#appendix-extraction-and-analysis-code" id="toc-appendix-extraction-and-analysis-code">Appendix: extraction and analysis code</a></li>
 </ul>
@@ -3833,30 +3832,6 @@ well over 50% for Typists, Receptionists and Cooks. So on an FTE basis,
 part-time-heavy growers grew less than the headcount ratio suggests,
 and part-time-heavy shrinkers shrank harder. The qualitative picture
 doesn’t change.</p>
-<h1 id="validating-these-numbers-yourself">Validating these numbers yourself</h1>
-<p>Every number in this post can be checked against source in under a
-minute.</p>
-<p><strong>1966 occupation count.</strong> Open <a href="https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/2106.01966?OpenDocument">ABS 1966 Census Vol. 1 Pt. 10
-Occupation</a>.
-Go to the PDF page in the table’s <code>PDF page</code> column. Find the
-occupation name in Table 1. Read the <strong>P (Persons)</strong> row, <strong>rightmost
-column</strong> (Australia). That’s the count.</p>
-<p><strong>2026 occupation count.</strong> Open
-<code>Occupation profiles data - February 2026.xlsx</code> from <a href="https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations">Jobs and Skills
-Australia</a>.
-Go to sheet <code>Table_1</code>. Find the ANZSCO code in column A. Read column C
-(“Employed”).</p>
-<p><strong>1966 workforce denominator (4,856,455).</strong> PDF p.112, “Total in the
-work force” row, P, rightmost column.</p>
-<p><strong>2026 workforce denominator (14,463,400).</strong> JSA xlsx, <code>Table_1</code>, sum
-the 4-digit ANZSCO Unit Group rows only: <code>=SUM(C8:C365)</code>. Do not include
-rows 366-1243 (those are 6-digit subdivisions of the rows above and
-would double-count).</p>
-<p><strong>1966 major-group totals.</strong> Each appears as a “Total &lt;group name&gt;”
-row at the end of its section: p.90 (Professional), p.92
-(Administrative), p.93 (Clerical, Sales), p.94 (Farmers), p.97 (Miners),
-p.99 (Transport), p.110 (Craftsmen/labourers), p.112 (Service, Armed
-services, Inadequately described, Total).</p>
 <h1 id="references">References</h1>
 <ol type="1">
 <li>Daniel Susskind, <em>A World Without Work</em>, Allen Lane / Penguin, 2020.
