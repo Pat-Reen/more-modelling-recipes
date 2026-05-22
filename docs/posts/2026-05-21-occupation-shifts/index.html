@@ -3489,6 +3489,36 @@ distill-header .nav a {
 }
 </script>
   <!--radix_placeholder_site_in_header-->
+<style>
+d-article img { cursor: zoom-in; }
+.img-zoom-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; cursor: zoom-out; padding: 24px;
+}
+.img-zoom-overlay img { max-width: 100%; max-height: 100%; object-fit: contain; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('d-article img').forEach(function (img) {
+    img.addEventListener('click', function () {
+      var overlay = document.createElement('div');
+      overlay.className = 'img-zoom-overlay';
+      var big = document.createElement('img');
+      big.src = img.currentSrc || img.src;
+      overlay.appendChild(big);
+      overlay.addEventListener('click', function () { overlay.remove(); });
+      document.addEventListener('keydown', function escClose(e) {
+        if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escClose); }
+      });
+      document.body.appendChild(overlay);
+    });
+  });
+});
+</script>
+
 <!--/radix_placeholder_site_in_header-->
 
 

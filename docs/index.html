@@ -2467,6 +2467,43 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <script src="site_libs/webcomponents-2.0.0/webcomponents.js"></script>
   <script src="site_libs/distill-2.2.21/template.v2.js"></script>
   <!--radix_placeholder_site_in_header-->
+  <style>
+  d-article img { cursor: zoom-in; }
+  d-article .posts-list img,
+  d-article a img { cursor: auto; }
+  .img-zoom-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; cursor: zoom-out; padding: 24px;
+  }
+  .img-zoom-overlay img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  </style>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Skip listing pages (index, category archives) entirely.
+    if (document.querySelector('.posts-list')) return;
+
+    document.querySelectorAll('d-article img').forEach(function (img) {
+      // Skip images that are themselves wrapped in a link.
+      if (img.closest('a')) return;
+      img.addEventListener('click', function () {
+        var overlay = document.createElement('div');
+        overlay.className = 'img-zoom-overlay';
+        var big = document.createElement('img');
+        big.src = img.currentSrc || img.src;
+        overlay.appendChild(big);
+        overlay.addEventListener('click', function () { overlay.remove(); });
+        document.addEventListener('keydown', function escClose(e) {
+          if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escClose); }
+        });
+        document.body.appendChild(overlay);
+      });
+    });
+  });
+  </script>
+
   <!--/radix_placeholder_site_in_header-->
 
 
