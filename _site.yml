@@ -15,7 +15,10 @@ navbar:
     - icon: fab fa-github
       href: https://github.com/Pat-Reen
 output_dir: "docs"
-output: distill::distill_article
+output:
+  distill::distill_article:
+    includes:
+      in_header: _includes/img_zoom.html
 collections:
   posts:
     share: [twitter, linkedin]
