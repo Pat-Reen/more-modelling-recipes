@@ -46,14 +46,20 @@ I wanted to see what the same exercise looks like in Australian data
 Three things stood out:
 
 1. **Nine 1966 occupations have no current equivalent in the
-   classification.** More than Susskind's one, but mostly because the
-   1966 Australian classification is more fine-grained than the US
-   1950 one he references. Causes vary too: automation, fashion,
-   regulation, offshoring.
+   classification.** More than Susskind's one, but my 28 are a
+   hand-picked sample of likely disappearances rather than a scan of
+   the whole 1966 classification, and Australia carried primary-
+   industry occupations (whalers, pearlers, tanners) the 1950 US one
+   didn't. Causes vary: automation, fashion, regulation, offshoring.
 2. **The bigger story is share-of-work decay, not extinction.**
    Stenographers and typists were 3.35% of the 1966 workforce. Today's
    ANZSCO "Typists" code reports 4,800 people, 0.03%. The role wasn't
-   automated away. Typing was distributed into every white-collar job.
+   automated away — typing was distributed into every white-collar job.
+   Today's 4,800 are mostly specialist roles: legal and medical
+   transcriptionists, court reporters, real-time captioners (the JSA
+   row shows 63% part-time). Typing as a craft survived where speed
+   and accuracy still earn their own job; typing as a general task
+   got everyone.
 3. **New work absorbed the shift.** Computer programmers went from
    2,561 (0.05%) in 1966 to 203,200 (1.40%) today, a 27× share-growth,
    the biggest in the comparison.
@@ -92,7 +98,8 @@ regulation and resource collapse, tanners largely moved offshore.
 Whalers and pearlers were also already down to tiny numbers by 1966
 (36 and 395 respectively), so calling them "disappeared" by 2026 is
 really an old industry decline catching up with the classification,
-not an automation story.
+not an automation story. Strip those out and the remaining
+automation-driven disappearances number about six.
 
 ## Occupations that shrank as a share of work
 
