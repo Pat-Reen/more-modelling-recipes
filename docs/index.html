@@ -2481,26 +2481,35 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
 
   <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Skip listing pages (index, category archives) entirely.
+  // Event delegation: attach a single listener at document level so it
+  // works regardless of when distill rewrites the DOM into d-article.
+  document.addEventListener('click', function (e) {
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG') return;
+
+    // Listing pages (index, category archives): never zoom.
     if (document.querySelector('.posts-list')) return;
 
-    document.querySelectorAll('d-article img').forEach(function (img) {
-      // Skip images that are themselves wrapped in a link.
-      if (img.closest('a')) return;
-      img.addEventListener('click', function () {
-        var overlay = document.createElement('div');
-        overlay.className = 'img-zoom-overlay';
-        var big = document.createElement('img');
-        big.src = img.currentSrc || img.src;
-        overlay.appendChild(big);
-        overlay.addEventListener('click', function () { overlay.remove(); });
-        document.addEventListener('keydown', function escClose(e) {
-          if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escClose); }
-        });
-        document.body.appendChild(overlay);
-      });
+    // Only zoom images inside the article body.
+    if (!img.closest('d-article') && !img.closest('.d-article')) return;
+
+    // Skip linked images (preview thumbnails wrapped in <a>).
+    if (img.closest('a')) return;
+
+    e.preventDefault();
+    var overlay = document.createElement('div');
+    overlay.className = 'img-zoom-overlay';
+    var big = document.createElement('img');
+    big.src = img.currentSrc || img.src;
+    overlay.appendChild(big);
+    overlay.addEventListener('click', function () { overlay.remove(); });
+    document.addEventListener('keydown', function escClose(ev) {
+      if (ev.key === 'Escape') {
+        overlay.remove();
+        document.removeEventListener('keydown', escClose);
+      }
     });
+    document.body.appendChild(overlay);
   });
   </script>
 
