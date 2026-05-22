@@ -63,6 +63,11 @@ Three things stood out:
 3. **New work absorbed the shift.** Computer programmers went from
    2,561 (0.05%) in 1966 to 203,200 (1.40%) today, a 27× share-growth,
    the biggest in the comparison.
+   
+One caveat up front: there's no lift-attendant in the 1966
+Australian census (presumably absorbed into "Other service workers,
+n.e.c."), so I can't test Susskind's specific example directly. The
+test is on the pattern, not the example.
 
 ![](img/chart_ratio.png){width=100%}
 *Ratio of each occupation's 2026 workforce share to its 1966 share. Bars
