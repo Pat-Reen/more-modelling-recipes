@@ -31,6 +31,8 @@ This is the third tool I've built over the same set of documents. Every time a n
 
 This third attempt is the first to take months rather than hours. Hybrid retrieval with a Voyage cross-encoder reranker (a second-pass model that scores each retrieved chunk against the question directly, much more accurately than the first-pass similarity match), deterministic synthesis with strict citation discipline (the answering LLM runs at temperature zero, so the same input always gives the same output, and must cite a specific chunk for every claim it makes), a hand-curated terminology lexicon, and an in-app eval suite that runs against the live system. The point isn't that no-code platforms can't do the job, it's what you can reach when you control every layer.
 
+**Live site:** [pds-rag-bot.australia-southeast1.run.app](https://pds-rag-bot-1012542324626.australia-southeast1.run.app/) 
+
 # The approach
 
 Two pipelines that share artefacts, not runtime state.
