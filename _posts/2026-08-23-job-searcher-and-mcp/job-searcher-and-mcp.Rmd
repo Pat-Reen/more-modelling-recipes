@@ -145,7 +145,30 @@ The page itself is the same style as the book recommender: mobile-first cards, o
 
 # Where MCP could fit
 
-I have an Indeed connector available in Claude - an MCP server that lets Claude search Indeed directly rather than through general web search. My first instinct was that the daily scan should use it. It can't, and the reason why is a useful thing to understand about MCP generally, not just about this tool.
+I have an Indeed connector available in Claude - an MCP server that lets Claude search Indeed directly rather than through general web search. Asked interactively, it's a single tool call and a structured response:
+
+```json
+// Request (indeed search tool)
+{
+  "country_code": "AU",
+  "location": "Sydney NSW",
+  "search": "Head of Data"
+}
+```
+
+```
+// Response (abridged, one result of several)
+**Job Title:** Head of Data & AI
+    **Job Id:** JOBSEARCH_142
+    **Company:** Meridian Super
+    **Location:** Sydney NSW
+    **Posted on:** August 20, 2026
+    **Job Type:** Full-time
+    **Compensation:** N/A
+    **View Job URL:** https://to.indeed.com/exampleid
+```
+
+That's a cleaner result than a general web search gives you - structured fields, a stable job ID, a canonical listing URL, no scraping a search results page and hoping the format holds. My first instinct was that the daily scan should use it instead of `web_search`. It can't, and the reason why is a useful thing to understand about MCP generally, not just about this tool.
 
 MCP itself doesn't care where the client runs. The Claude API supports connecting directly to a remote MCP server from a single request, no separate client library required:
 
