@@ -4,6 +4,7 @@ description: "A collection of data science and actuarial modelling recipes. Simp
 site: distill::distill_website
 listing:
   posts:
+    - 2026-08-23-book-recommender-hosting
     - 2026-05-25-pds-rag
     - 2026-05-21-occupation-shifts
     - 2026-04-05-bot-de-plume
