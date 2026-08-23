@@ -168,9 +168,9 @@ I have an Indeed connector available in Claude - an MCP server that lets Claude 
     **View Job URL:** https://to.indeed.com/exampleid
 ```
 
-That's a cleaner result than a general web search gives you - structured fields, a stable job ID, a canonical listing URL, no scraping a search results page and hoping the format holds. My first instinct was that the daily scan should use it instead of `web_search`. It can't, and the reason why is a useful thing to understand about MCP generally, not just about this tool.
+That's a cleaner result than a general web search gives you - structured fields, a stable job ID, a canonical listing URL, no scraping a search results page and hoping the format holds. My first instinct was that the daily scan should use it instead of `web_search`. It can't, but not because MCP is somehow off-limits to a script - the Claude API has a documented, fully programmatic way to call a remote MCP server, and I want to be precise about what actually blocks this one.
 
-MCP itself doesn't care where the client runs. The Claude API supports connecting directly to a remote MCP server from a single request, no separate client library required:
+The Claude API supports connecting directly to a remote MCP server from a single request, no interactive session or separate client library required:
 
 ```python
 client.beta.messages.create(
@@ -182,9 +182,9 @@ client.beta.messages.create(
 )
 ```
 
-That's a plain API call - the same shape `scan.py` already uses, just with an `mcp_servers` block and a matching `mcp_toolset` tool added. If a server takes a bearer token, there's even a field for it: `authorization_token` on the server definition. In principle, that's all a headless script needs to talk to a remote MCP server.
+That's a plain API call - the same shape `scan.py` already uses, just with an `mcp_servers` block and a matching `mcp_toolset` tool added. If a server takes a bearer token, there's even a field for it: `authorization_token` on the server definition. So the split isn't "MCP works in a script" versus "MCP doesn't" - it's what kind of credential the server needs. An MCP server that authenticates with a static secret - an API key, a personal access token, a service account credential you generated yourself - drops straight into `authorization_token` and a script can call it today, no session involved.
 
-The Indeed connector doesn't have a token to put there. It's installed through claude.ai's connector directory, which handles the OAuth handshake with Indeed and holds the resulting credential on Anthropic's side, tied to my account and to interactive sessions like this one. There's no export button, no bearer token to copy into a GitHub secret. That's a deliberate property of how connectors work, not a gap - the OAuth flow that authorises it needs a browser and a login, which isn't something a cron job can do on its own.
+The Indeed connector isn't that kind of server. It's installed through claude.ai's connector directory, which handled an OAuth handshake with Indeed the one time I connected it, in a browser, and holds the resulting credential on Anthropic's side from then on, tied to my account and to interactive sessions like this one. There's no export button, no bearer token to copy into a GitHub secret - not because the feature is missing, but because that credential was never issued as a portable thing in the first place. The OAuth flow that authorised it needs a browser and a login, which isn't something a cron job can do on its own.
 
 So the honest options for actually using it in this pipeline are the API's `mcp_servers` connector with a self-issued token, for an MCP server that supports one (which would mean finding or standing up an Indeed integration with its own portable credentials, and I don't know that one exists), or replacing the plain script with a scheduled interactive Claude session that has the connector attached and can push its own commits. I looked hard at the second option and decided against it for now - it turns a five-second API call into a full agent run on a schedule, with the cost and unpredictability that comes with it, for a tool that's currently working fine on plain web search. It's the right call for a case where the connector genuinely can't be replicated by search - internal ticketing systems, a paid data source with no public equivalent - and the value of that data justifies an agent session over a script. Worth knowing the door is open, even if I'm not walking through it today.
 
