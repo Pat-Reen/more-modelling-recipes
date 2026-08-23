@@ -1,0 +1,99 @@
+---
+title: "A working MCP connector call, this time for real"
+description: |
+  The last post explained why job-searcher can't use an Indeed MCP connector from a headless script. This one follows through with a real, working example against a server that actually has a portable credential - GitHub's own.
+author:
+  - name: Pat Reen
+    url: https://www.linkedin.com/in/patrick-reen/
+categories:
+  - python
+  - github
+  - mcp
+  - llm
+  - automation
+theme: main.css
+preview: img/prev_mcp_watchdog.png
+date: 2026-08-23
+draft: false
+output:
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    self_contained: true
+---
+
+# Background
+
+The [previous post](https://pat-reen.github.io/more-modelling-recipes/posts/2026-08-23-job-searcher-and-mcp/) went into why job-searcher's daily scan can't use the Indeed connector I have in Claude: the credential behind it lives in claude.ai's OAuth flow, tied to my account and to interactive sessions, with nothing portable to hand a GitHub Actions job. The `mcp_servers` connector on the Claude API is real and works from a plain script, though - it just needs an MCP server whose credential isn't locked to a browser login. GitHub's own remote MCP server is exactly that kind, so this is the same snippet, actually run.
+
+This lives in its own small repo, [`workflow-watchdog`](https://github.com/Pat-Reen/workflow-watchdog), rather than inside job-searcher - it's a general-purpose tool, not specific to any one project's automation.
+
+# Why GitHub
+
+GitHub hosts its own MCP server at `api.githubcopilot.com/mcp/`, and it takes a plain personal access token over a bearer header. That's the same fine-grained PAT pattern already used everywhere else across these tools - book-recommender's page dispatches workflows with one, job-searcher's `manage.py` workflows use one. No partner program, no sales conversation, no OAuth screen tied to a specific product's account system. Generate a token scoped to Actions: Read on the repo you care about, and it's usable from anywhere that can hold a secret.
+
+# The script
+
+`check_workflow_status.py` takes a repo and a workflow name, and asks Claude to report on it:
+
+```python
+GITHUB_MCP_URL = "https://api.githubcopilot.com/mcp/"
+
+client = anthropic.Anthropic(api_key=anthropic_key)
+response = client.beta.messages.create(
+    model=MODEL,
+    max_tokens=2048,
+    betas=["mcp-client-2025-11-20"],
+    mcp_servers=[{
+        "type": "url",
+        "url": GITHUB_MCP_URL,
+        "name": "github",
+        "authorization_token": github_pat,
+    }],
+    tools=[{"type": "mcp_toolset", "mcp_server_name": "github"}],
+    messages=[{"role": "user", "content": build_prompt(owner_repo, workflow_name, max_age_hours)}],
+)
+```
+
+The prompt just asks in plain language for what I want to know:
+
+```python
+def build_prompt(owner_repo, workflow_name, max_age_hours):
+    return f"""Check the most recent runs of the GitHub Actions workflow named
+"{workflow_name}" in the repository {owner_repo}.
+
+Report, in a few sentences:
+1. Whether the most recent run succeeded, failed, or is still in progress.
+2. When it ran, and whether it looks like a scheduled run was missed - flag it if the
+   most recent run is more than {max_age_hours} hours old.
+3. If it failed, a one-line reason if that's visible from the run's conclusion or logs."""
+```
+
+Run it against job-searcher's own scan:
+
+```
+python check_workflow_status.py Pat-Reen/job-searcher "Daily job search scan"
+```
+
+and Claude uses the GitHub toolset to look up the workflow, reads its recent runs, and answers in prose - no bespoke GitHub API client, no hand-rolled pagination through the Actions API, no `gh` CLI dependency.
+
+# No manual tool loop
+
+There's no `while stop_reason == "tool_use"` loop in this script, and there doesn't need to be one. With `mcp_toolset`, Anthropic's backend makes the MCP connection and executes the tool calls server-side, the same way the web search tool already works in scan.py and recommend.py from the earlier posts. One request goes out, Claude decides which GitHub tools to call, those calls happen on Anthropic's infrastructure against GitHub's MCP server, and the results come back as content in the same response. The script just has to read the final text block.
+
+# What it's for
+
+Right now it's a manual check - `python check_workflow_status.py` and read the answer. The natural next step is wiring it into its own low-frequency scheduled workflow in whichever repo it's watching, so a stopped scan gets noticed without me remembering to look. That'd also sidestep something job-scan.yml has to solve for itself: sending an actual notification. job-scan.yml needs Gmail SMTP secrets to email a summary. A watchdog workflow doesn't - if `check_workflow_status.py` exits non-zero on a bad result, GitHub's own built-in failure notification handles the alert, since a failed scheduled workflow run already emails the repo owner by default. No email secrets, no separate notification code, just a job that fails loudly when it should.
+
+Haven't built that scheduled workflow yet - this post is about the connector call working, not the monitoring setup around it.
+
+# Further reading
+
+If you want to go deeper on MCP itself rather than picking it up piecemeal from posts like this one, Anthropic runs short courses on it:
+
+- [Introduction to Model Context Protocol](https://verify.skilljar.com/c/k7mmiopnxzum) - the concepts: clients, servers, tools, resources, how the pieces fit together.
+- [Building with the Claude API](https://verify.skilljar.com/c/p6pb9uug2n8y) - broader API coverage, including tool use and the connector patterns this post relies on.
+
+# The takeaway
+
+Same recipe as the other two posts - a small script, a portable credential, GitHub Actions doing the scheduling - just pointed at a different server. The Indeed post was about recognising where that recipe doesn't apply; this one's about what it looks like when it does. The `mcp_servers` connector doesn't care which MCP server is on the other end. What matters is whether the credential in front of it is something a script can actually hold.
