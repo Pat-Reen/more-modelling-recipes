@@ -1,7 +1,7 @@
 ---
-title: "Shelf Awareness: App hosting"
+title: "Shelf Awareness: app hosting and building prompt context"
 description: |
-  A short post on hosting a small book tracker: starting on Streamlit, weighing up GCP, and playing with Github Pages.
+  A short post on hosting a small book tracker: starting on Streamlit, weighing up GCP, playing with Github Pages, and why the recommendations get better when the whole library goes in the prompt.
 author:
   - name: Pat Reen
     url: https://www.linkedin.com/in/patrick-reen/
@@ -10,6 +10,7 @@ categories:
   - github
   - gcp
   - hosting
+  - llm
 theme: main.css
 preview: img/prev_book_recommender.png
 date: 2026-07-15
@@ -44,12 +45,32 @@ I'd already been running my CV on GitHub Pages for a while, so I thought this mi
 
 It's very simple setup for something free, and it reuses infrastructure I already understood. 
 
-![A recommendation session, with the reasoning behind each pick.](img/book_recommend.png){width=45%}
-
 # The catch
 
 The obvious limitation is that it's a static page. Every change goes through a GitHub Actions run and a commit before the page reflects it, and GitHub Pages has its own rebuild delay on top of that. For a book list that's not exactly high-frequency, it's a fine trade. It wouldn't hold up for anything that needs to feel live.
 
+# Recommendations
+
+Asking a chatbot for a book recommendation cold gets me the books everyone gets recommended. Adding a bit of my context works better and I similar to Amazon
+s algorithms for kindle. However some of what I read a physical books and some are e-books and I'm too lazy to track them or remember to add them to a prompt context. Or keep a project in my llm of choice.
+
+The app already has the list, so it sends it in the prompt. The list is easy to add to (although I'd like to add a feature to auto add from a photo of a book or screen grab from Kindle or google books). So every request includes the books I've read with authors, years and any notes, the to-read list, and previous recommendation sessions including the picks I ignored. The ask itself is one line. Most of the prompt is rules for what to do with the list:
+
+- look at the library as a whole, not just the last thing added
+- skip anything already in the library, on the list, or suggested before
+- explain each pick against specific books I've read
+- say what might not work about it
+
+The last two do the most. If it has to justify a pick against a named book, it can't fall back on "you like literary fiction, here is more literary fiction". In the session below it suggests Sartre's Nausea off the back of Camus and Kafka, and Carrington's The Hearing Trumpet off Vonnegut, then warns that Carrington drifts further into surrealism than Coetzee or Ernaux do. That warning is usually the most useful line on the card. It's what I read to decide whether to bother.
+
+![A recommendation session, with the reasoning behind each pick.](img/book_recommend.png){width=45%}
+
+# Using it
+
+I open it when I've finished something and am standing in Kinokuniya trying to find the next thing without leaning on the Booker shortlist.
+
+What I like is that keeping the library current and getting better recommendations are the same job. I'm not maintaining context for a model, I'm recording what I read, and the recommendations improve as a side effect.
+
 # The takeaway
 
-None of these three options is wrong. They just suit different amounts of app. Nevertheless Github Pages feels right-sized for something simple.
+None of these three hosting options is wrong. They just suit different amounts of app, and Github Pages is right-sized for this one. The recommendations turned out to depend much less on where it runs than on having a JSON file of what I'd read sitting there to send.
