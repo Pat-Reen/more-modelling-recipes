@@ -1,0 +1,56 @@
+---
+title: "Where should a hobby app actually live?"
+description: |
+  A short post on hosting a small book tracker: starting on Streamlit, hitting the free tier ceiling, weighing up GCP, and settling on GitHub Pages.
+author:
+  - name: Pat Reen
+    url: https://www.linkedin.com/in/patrick-reen/
+categories:
+  - python
+  - github
+  - gcp
+  - hosting
+theme: main.css
+preview: img/prev_book_recommender.png
+date: 2026-08-23
+draft: false
+output:
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    self_contained: true
+---
+
+# Background
+
+I wanted a simple place to track what I've read, keep a list of what's next, and get a recommendation when I can't decide. So I built Shelf Awareness: a library tracker with a Claude-powered "get recommendations" button. Building the app was the easy part. Deciding where it should live took three tries.
+
+# Attempt one: Streamlit
+
+Streamlit was the obvious starting point. A few hundred lines of Python and I had a working app: forms to add books, a list view, a button that called out for recommendations. It felt instant.
+
+The free tier is where it fell over. Community Cloud apps sleep after a period of inactivity and take a moment to wake back up, and the resource limits are tight enough that a personal project sharing the same free pool starts to feel cramped once you're storing data and calling an API on top of just serving pages. None of it was a dealbreaker on its own, but together it made the app feel like it was on borrowed infrastructure rather than something I actually owned.
+
+# Attempt two: GCP
+
+The next idea was to move it properly: Cloud Run for the app, a real database for the library data, IAM to control who could get in. That's the setup I'd used for a couple of other personal projects, and on paper it solves everything Streamlit's free tier doesn't. Storage that isn't tied to a sleeping instance, proper access controls instead of a shared token, and a lot more room to grow.
+
+In practice it was more than a book list needed. Standing up Cloud Run, wiring a database, and managing service accounts and secrets is a reasonable amount of ongoing upkeep for an app that a couple of people use to jot down what they're reading. I got partway into it before deciding the operational overhead wasn't worth it for something this small.
+
+# What I landed on: GitHub Pages
+
+I'd already been running my CV on GitHub Pages for a while, so it was a natural fallback. The result is deliberately simple: no server and no database. The library, reading list, and recommendation history are just JSON files committed to the repo. A script renders them into a static page, and every action on that page, adding a book, editing it, asking for a recommendation, triggers a GitHub Actions workflow that updates the data and regenerates the page.
+
+![My Library, on the deployed static page.](img/book_library.png){width=45%}
+
+It's a genuinely simple setup for something free, and it reuses infrastructure I already understood. Getting recommendations still calls out to Claude, but the app itself has nothing running that I need to babysit.
+
+![A recommendation session, with the reasoning behind each pick.](img/book_recommend.png){width=45%}
+
+# The catch
+
+The obvious limitation is that it's a static page. Every change goes through a GitHub Actions run and a commit before the page reflects it, and GitHub Pages has its own rebuild and CDN delay on top of that. For a book list that's not exactly high-frequency, it's a fine trade. It wouldn't hold up for anything that needs to feel live.
+
+# The takeaway
+
+None of these three options is wrong. They just suit different amounts of app. Streamlit is great until the free tier becomes the constraint. GCP gives you a proper backend, at the cost of being a proper backend to maintain. GitHub Pages sits underneath both: no infrastructure to manage, at the cost of everything being a rebuild away from up to date. For a hobby project used by a handful of people, that trade is the right one.
