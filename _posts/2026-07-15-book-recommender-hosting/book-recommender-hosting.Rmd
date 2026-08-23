@@ -1,7 +1,7 @@
 ---
-title: "Hobby app hosting"
+title: "Shelf Awareness: App hosting"
 description: |
-  A short post on hosting a small book tracker: starting on Streamlit, hitting the free tier ceiling, weighing up GCP, and settling on GitHub Pages.
+  A short post on hosting a small book tracker: starting on Streamlit, weighing up GCP, and playing with Github Pages.
 author:
   - name: Pat Reen
     url: https://www.linkedin.com/in/patrick-reen/
