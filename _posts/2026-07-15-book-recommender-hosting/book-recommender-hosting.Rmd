@@ -1,0 +1,55 @@
+---
+title: "Hobby app hosting"
+description: |
+  A short post on hosting a small book tracker: starting on Streamlit, hitting the free tier ceiling, weighing up GCP, and settling on GitHub Pages.
+author:
+  - name: Pat Reen
+    url: https://www.linkedin.com/in/patrick-reen/
+categories:
+  - python
+  - github
+  - gcp
+  - hosting
+theme: main.css
+preview: img/prev_book_recommender.png
+date: 2026-07-15
+draft: false
+output:
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    self_contained: true
+---
+
+# Background
+
+I wanted a simple place to track what I've read, keep a list of what's next, and get a recommendation or two. So I built Shelf Awareness: a library tracker with a AI-powered "get recommendations" button. 
+
+Final product is [here](https://pat-reen.github.io/book-recommender/).
+
+
+# Attempt one: Streamlit
+
+I started with Streamlit. However the free tier apps sleep after a period of inactivity and take a moment to wake back up, and the resource limits start to feel cramped once you're storing data and calling an API on top of serving pages. 
+
+# Attempt two: GCP
+
+The next idea was to move it properly to Cloud Run for the app, a database for the library data, IAM to control who could get in. However, in practice it was more than a book list needed. Standing up Cloud Run, wiring a database, and managing service accounts was a bit too much operational overhead,
+
+# GitHub Pages
+
+I'd already been running my CV on GitHub Pages for a while, so I thought this might be a reasonable fallback: no server and no database. The library, reading list, and recommendation history are just JSON files committed to the repo. A script renders them into a static page, and every action on that page, adding a book, editing it, asking for a recommendation, triggers a GitHub Actions workflow that updates the data and regenerates the page.
+
+![My Library, on the deployed static page.](img/book_library.png){width=45%}
+
+It's very simple setup for something free, and it reuses infrastructure I already understood. 
+
+![A recommendation session, with the reasoning behind each pick.](img/book_recommend.png){width=45%}
+
+# The catch
+
+The obvious limitation is that it's a static page. Every change goes through a GitHub Actions run and a commit before the page reflects it, and GitHub Pages has its own rebuild delay on top of that. For a book list that's not exactly high-frequency, it's a fine trade. It wouldn't hold up for anything that needs to feel live.
+
+# The takeaway
+
+None of these three options is wrong. They just suit different amounts of app. Nevertheless Github Pages feels right-sized for something simple.

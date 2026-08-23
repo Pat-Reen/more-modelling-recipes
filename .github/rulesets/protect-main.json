@@ -1,0 +1,31 @@
+{
+  "name": "Protect main from force-push and deletion",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/main"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {"type": "deletion"},
+    {"type": "non_fast_forward"},
+    {
+      "type": "file_extension_restriction",
+      "parameters": {
+        "restricted_file_extensions": [
+          ".env",
+          ".pem",
+          ".key",
+          ".pfx",
+          ".p12",
+          ".jks",
+          ".keystore",
+          ".ppk"
+        ]
+      }
+    }
+  ],
+  "bypass_actors": []
+}
