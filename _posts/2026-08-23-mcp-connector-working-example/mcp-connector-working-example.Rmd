@@ -1,7 +1,8 @@
 ---
-title: "A working MCP connector call, this time for real"
+title: "An MCP connector call, toy model"
 description: |
-  The last post explained why job-searcher can't use an Indeed MCP connector from a headless script. This one follows through with a real, working example against a server that actually has a portable credential - GitHub's own.
+  The job-searcher tool couldn't use a MCP connector to Indeed from a headless script - permissions for that are managed by a   Caude instance.  This example is an MCP call against a server that does have a portable credential (Github).
+  It's a simple example that asks Claude how a scheduled workflow is doing, running on a schedule of its own.
 author:
   - name: Pat Reen
     url: https://www.linkedin.com/in/patrick-reen/
@@ -10,7 +11,7 @@ categories:
   - github
   - mcp
   - llm
-  - automation
+  - ai workflow
 theme: main.css
 preview: img/prev_mcp_watchdog.png
 date: 2026-08-23
@@ -24,22 +25,43 @@ output:
 
 # Background
 
-The [previous post](https://pat-reen.github.io/more-modelling-recipes/posts/2026-08-23-job-searcher-and-mcp/) went into why job-searcher's daily scan can't use the Indeed connector I have in Claude: the credential behind it lives in claude.ai's OAuth flow, tied to my account and to interactive sessions, with nothing portable to hand a GitHub Actions job. The `mcp_servers` connector on the Claude API is real and works from a plain script, though - it just needs an MCP server whose credential isn't locked to a browser login. GitHub's own remote MCP server is exactly that kind, so this is the same snippet, actually run.
+The [previous post](https://pat-reen.github.io/more-modelling-recipes/posts/2026-08-23-job-searcher-and-mcp/) went into why job-searcher's daily scan can't call the Indeed connector I have in Claude. The credential behind it lives in claude.ai's OAuth flow, tied to my account and to interactive sessions, with nothing portable to hand a GitHub Actions job. The connector works there by running the whole thing inside a Claude routine on a schedule.
 
-This lives in its own small repo, [`workflow-watchdog`](https://github.com/Pat-Reen/workflow-watchdog), rather than inside job-searcher - it's a general-purpose tool, not specific to any one project's automation.
+The `mcp_servers` connector on the Claude API does work from a plain script. It needs an MCP server whose credential isn't locked to a browser login, and GitHub's own remote MCP server is that kind: a fine-grained personal access token over a bearer header. This is a toy example of that kind. 
+
+It lives in its own small repo, `workflow-watchdog`, rather than inside job-searcher. It's a general-purpose tool, not specific to one project's automation. In this instance it checks the actions within the job scanner workflow.
+
+This can probably be done more simply and cheaply using fail guards within the actions but this is just an MCP toy demo.
+
+# What it does
+
+It watches the job scanner. A scheduled workflow that quietly stops running looks identical, from the outside, to one that has nothing to report, and job-searcher's scan is exactly the kind of thing I'd not notice had died for a fortnight.
+
+```
+python check_workflow_status.py Pat-Reen/job-searcher "Daily job search scan" --max-age-hours 12
+```
+
+```
+OK: last run concluded 'success' 3.7h ago
+  status    : completed / success
+  last run  : 2026-08-24T22:46:11Z
+  threshold : 12h
+  run url   : https://github.com/Pat-Reen/job-searcher/actions/runs/32786234248
+  notes     : Most recent run (run #13, triggered by a 'schedule' event) completed
+              successfully. It ran on the 'main' branch at head commit 'dd8cb9e'.
+```
+
+No `gh` CLI, no MCP client library, no hand-written wrapper around the Actions API. A Claude API call that reaches GitHub's MCP server.
 
 # Why GitHub
 
-GitHub hosts its own MCP server at `api.githubcopilot.com/mcp/`, and it takes a plain personal access token over a bearer header. That's the same fine-grained PAT pattern already used everywhere else across these tools - book-recommender's page dispatches workflows with one, job-searcher's `manage.py` workflows use one. No partner program, no sales conversation, no OAuth screen tied to a specific product's account system. Generate a token scoped to Actions: Read on the repo you care about, and it's usable from anywhere that can hold a secret.
+GitHub hosts its own MCP server at `api.githubcopilot.com/mcp/`, and it takes a plain personal access token over a bearer header. It's usable from anywhere that can hold a secret.
 
-# The script
-
-`check_workflow_status.py` takes a repo and a workflow name, and asks Claude to report on it:
+# The call
 
 ```python
-GITHUB_MCP_URL = "https://api.githubcopilot.com/mcp/"
+GITHUB_MCP_URL = "https://api.githubcopilot.com/mcp/x/actions/readonly"
 
-client = anthropic.Anthropic(api_key=anthropic_key)
 response = client.beta.messages.create(
     model=MODEL,
     max_tokens=2048,
@@ -51,41 +73,169 @@ response = client.beta.messages.create(
         "authorization_token": github_pat,
     }],
     tools=[{"type": "mcp_toolset", "mcp_server_name": "github"}],
-    messages=[{"role": "user", "content": build_prompt(owner_repo, workflow_name, max_age_hours)}],
+    output_config={"format": {"type": "json_schema", "schema": REPORT_SCHEMA}},
+    messages=[{"role": "user", "content": build_prompt(owner_repo, workflow_name)}],
 )
 ```
 
-The prompt just asks in plain language for what I want to know:
+Two things in there are worth calling out.
+
+**The URL is not the obvious one.** The bare `https://api.githubcopilot.com/mcp/` endpoint serves a "default" toolset with no workflow-run tools in it at all; `/x/actions` is the one that carries run history. The `/readonly` suffix drops every write tool, which is all a watchdog should ever be holding:
 
 ```python
-def build_prompt(owner_repo, workflow_name, max_age_hours):
-    return f"""Check the most recent runs of the GitHub Actions workflow named
+# The bare https://api.githubcopilot.com/mcp/ endpoint serves a "default" toolset that
+# has no workflow-run tools at all - Claude can read the workflow file but not its run
+# history. Toolsets are selected by URL path; /x/actions is the one we need, and the
+# /readonly suffix drops every write tool, which is all a watchdog should ever hold.
+```
+
+**There's no tool loop.** No `while stop_reason == "tool_use"` anywhere in the script, and there doesn't need to be. With `mcp_toolset`, Anthropic's backend makes the MCP connection and executes the tool calls server-side, the same way the web search tool already works in the job scanner. One request goes out, Claude decides which GitHub tools to call, those calls happen on Anthropic's infrastructure against GitHub's MCP server, and the results come back in the same response.
+
+# The model reports, the script decides
+
+Claude is asked for observations and nothing else. Models are unreliable at "how many hours ago was this", and that happens to be the one part of this job that is trivially correct in Python, so the prompt rules it out twice:
+
+```python
+def build_prompt(owner_repo, workflow_name):
+    return f"""Look up the most recent run of the GitHub Actions workflow named
 "{workflow_name}" in the repository {owner_repo}.
 
-Report, in a few sentences:
-1. Whether the most recent run succeeded, failed, or is still in progress.
-2. When it ran, and whether it looks like a scheduled run was missed - flag it if the
-   most recent run is more than {max_age_hours} hours old.
-3. If it failed, a one-line reason if that's visible from the run's conclusion or logs."""
+Report only what you observe. Do not judge whether the run is late or overdue, and do
+not compute how long ago it ran - copy timestamps verbatim from the API and let the
+caller do the arithmetic.
+
+If no workflow matches that name, set "found" to false. If instead the API refused you -
+a 401/403, "not accessible by personal access token", or a 404 on a repository you were
+asked about - set "access_error" to true, because that is a credential problem rather
+than a missing workflow, and say which call was refused in "notes"."""
 ```
 
-Run it against job-searcher's own scan:
+The answer comes back as JSON through structured outputs, so there's no prose to parse:
 
+```python
+REPORT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "found": {"type": "boolean",
+                  "description": "Whether a workflow with that name exists in the repo."},
+        "access_error": {"type": "boolean",
+                         "description": "True if GitHub denied access (401/403, 'not accessible "
+                                        "by personal access token', or a 404 on a repo you were "
+                                        "told exists) rather than the workflow being genuinely "
+                                        "absent. A credential problem, not a workflow problem."},
+        "status": {"type": "string",
+                   "enum": ["completed", "in_progress", "queued", "none"]},
+        "conclusion": {"type": ["string", "null"]},
+        "last_run_started_at": {"type": ["string", "null"],
+                                "description": "Start time of the most recent run as an ISO 8601 "
+                                               "UTC timestamp, copied verbatim from the API."},
+        "run_url": {"type": ["string", "null"]},
+        "failure_reason": {"type": ["string", "null"]},
+        "notes": {"type": "string"},
+    },
+    "required": [...],
+    "additionalProperties": False,
+}
 ```
-python check_workflow_status.py Pat-Reen/job-searcher "Daily job search scan"
+
+Every judgement then happens in code, where I can read it and test it without spending an API call:
+
+```python
+def evaluate(report, max_age_hours):
+    """Turn Claude's observations into (exit_code, headline). All judgement lives here."""
+    # A denied credential is not a workflow outage - don't let it read as one.
+    if report.get("access_error"):
+        return EXIT_API, "ERROR: GitHub denied access - check the PAT's repository access"
+
+    if not report.get("found"):
+        return EXIT_PROBLEM, "PROBLEM: workflow not found"
+
+    status = report.get("status")
+    if status == "none":
+        return EXIT_PROBLEM, "PROBLEM: workflow has never run"
+    if status in ("in_progress", "queued"):
+        return EXIT_OK, f"OK: run is {status}"
+
+    conclusion = (report.get("conclusion") or "unknown").lower()
+    if conclusion in BAD_CONCLUSIONS:
+        return EXIT_PROBLEM, f"PROBLEM: last run concluded '{conclusion}'"
+
+    age = hours_since(report.get("last_run_started_at"))
+    if age is None:
+        return EXIT_PROBLEM, "PROBLEM: could not read the last run's timestamp"
+    if age > max_age_hours:
+        return EXIT_PROBLEM, (
+            f"PROBLEM: last run was {age:.1f}h ago, over the {max_age_hours}h threshold"
+        )
+    return EXIT_OK, f"OK: last run concluded '{conclusion}' {age:.1f}h ago"
 ```
 
-and Claude uses the GitHub toolset to look up the workflow, reads its recent runs, and answers in prose - no bespoke GitHub API client, no hand-rolled pagination through the Actions API, no `gh` CLI dependency.
+That split is the useful pattern here, more than the MCP call itself. The model does retrieval, which is what it's good at and what the connector is for. The script does the arithmetic and decides, which is what code is good at. The interesting logic ends up testable without spending an API call, and the API call ends up boring.
 
-# No manual tool loop
+The exit codes matter for the same reason. A PAT that expired is not a workflow outage, and reporting it as one sends you hunting in the wrong repo:
 
-There's no `while stop_reason == "tool_use"` loop in this script, and there doesn't need to be one. With `mcp_toolset`, Anthropic's backend makes the MCP connection and executes the tool calls server-side, the same way the web search tool already works in scan.py and recommend.py from the earlier posts. One request goes out, Claude decides which GitHub tools to call, those calls happen on Anthropic's infrastructure against GitHub's MCP server, and the results come back as content in the same response. The script just has to read the final text block.
+| Exit | Meaning |
+|---|---|
+| 0 | Healthy, or a run is still in flight |
+| 1 | Problem: last run failed, is overdue, or the workflow is genuinely absent |
+| 2 | Config or usage error (missing credentials, unusable response) |
+| 3 | Claude API, network, or credential error |
 
-# What it's for
+# Running it on a schedule
 
-Right now it's a manual check - `python check_workflow_status.py` and read the answer. The natural next step is wiring it into its own low-frequency scheduled workflow in whichever repo it's watching, so a stopped scan gets noticed without me remembering to look. That'd also sidestep something job-scan.yml has to solve for itself: sending an actual notification. job-scan.yml needs Gmail SMTP secrets to email a summary. A watchdog workflow doesn't - if `check_workflow_status.py` exits non-zero on a bad result, GitHub's own built-in failure notification handles the alert, since a failed scheduled workflow run already emails the repo owner by default. No email secrets, no separate notification code, just a job that fails loudly when it should.
+The watchdog has its own workflow, and it carries no alerting code at all:
 
-Haven't built that scheduled workflow yet - this post is about the connector call working, not the monitoring setup around it.
+```yaml
+on:
+  schedule:
+    # 02:15 UTC Mon-Fri, ~4 hours after each "Daily job search scan" run
+    # (that one fires 22:15 UTC Sun-Thu). Deliberately not scheduled Sat/Sun:
+    # the scan doesn't run Fri or Sat nights, so there'd be nothing to check
+    # and a fixed age threshold would false-alarm across the weekend gap.
+    - cron: "15 2 * * 1-5"
+
+permissions:
+  contents: read
+```
+
+```yaml
+      - name: Check the watched workflow
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # A secret's name can't start with GITHUB_, so the stored secret is
+          # WATCHDOG_PAT; only the env var inside the job uses the name the
+          # script expects.
+          GITHUB_PAT: ${{ secrets.WATCHDOG_PAT }}
+          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
+          # Inputs are empty on a scheduled run, so fall back to repository
+          # variables and finally to the defaults below.
+          REPO: ${{ inputs.repo || vars.WATCH_REPO || 'Pat-Reen/job-searcher' }}
+          WORKFLOW: ${{ inputs.workflow || vars.WATCH_WORKFLOW || 'Daily job search scan' }}
+          MAX_AGE_HOURS: ${{ inputs.max_age_hours || vars.WATCH_MAX_AGE_HOURS || '12' }}
+        # Values are passed through env vars rather than interpolated straight
+        # into the command, so nothing lands in the echoed run line.
+        run: python check_workflow_status.py "$REPO" "$WORKFLOW" --max-age-hours "$MAX_AGE_HOURS"
+```
+
+`WATCHDOG_PAT` is a fine-grained token pointed at the *watched* repo rather than this one, with **Actions: Read-only** for the run history and **Contents: Read-only**, which the MCP server also reaches for while it orients itself. Nothing here needs write access of any kind.
+
+The threshold is 12 rather than the script's 36-hour default because the check runs four hours after the scan. A healthy run is 4h old at that point and a missed one is 28h, so 36 would wave the miss straight through.
+
+A non-zero exit fails the job, and GitHub's own failed-workflow notification email does the rest. Failing loudly *is* the notification.
+
+# A run
+
+![Watchdog run #3: one Claude API call, twelve seconds, and a verdict.](img/watchdog_run.png){width=100%}
+
+# Where the result goes
+
+| | When | What you get |
+|---|---|---|
+| Run log | Every run | The full report: verdict, timestamp, run URL, Claude's notes |
+| Actions tab | Every run | A green tick or a red X |
+| **Email** | **Failures only** | GitHub's own failed-workflow notification |
+
+Success is deliberately silent. 
 
 # Further reading
 
@@ -96,4 +246,4 @@ If you want to go deeper on MCP itself rather than picking it up piecemeal from 
 
 # The takeaway
 
-Same recipe as the other two posts - a small script, a portable credential, GitHub Actions doing the scheduling - just pointed at a different server. The Indeed post was about recognising where that recipe doesn't apply; this one's about what it looks like when it does. The `mcp_servers` connector doesn't care which MCP server is on the other end. What matters is whether the credential in front of it is something a script can actually hold.
+The `mcp_servers` connector doesn't care which MCP server is on the other end. What matters is whether the credential in front of it is something a script can hold, and after that, how little of the job you leave to the model once it's handed you the facts.
